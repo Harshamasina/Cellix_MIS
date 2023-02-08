@@ -1,0 +1,28 @@
+{
+  "name": "cellix_mis",
+  "version": "1.0.0",
+  "description": "Cellix Bio Patent Life Cycle Nodejs App",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Harshamasina/Cellix_MIS.git"
+  },
+  "keywords": [
+    "Cellix",
+    "MIS"
+  ],
+  "author": "harsha masina",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Harshamasina/Cellix_MIS/issues"
+  },
+  "homepage": "https://github.com/Harshamasina/Cellix_MIS#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "mongoose": "^6.9.1"
+  }
+}
