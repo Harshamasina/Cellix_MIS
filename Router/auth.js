@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const MISPatentsSchema = require('../Models/PatentModel');
 
-router.get('/', (req, res) =>{
+router.get('/', (res) =>{
     res.send(`Hello from the Cellix MIS Services`)
 });
 
@@ -39,7 +39,7 @@ router.get('/api/getpatents', async(req, res) => {
         console.error(err);
         res.status(422).json({
             error: err,
-            message: "Failed to get Patents MIS Information"
+            message: "Failed to get MIS Information"
         });
     }
 });
@@ -53,13 +53,13 @@ router.get('/api/getpatent/:ref', async(req, res) => {
         }
         res.status(201).json({
             data: data,
-            message: "Patent MIS Information sent Successfully"
+            message: "MIS Information sent Successfully"
         });
     } catch (err) {
         console.error(err);
         res.status(422).json({
             error: err,
-            message: "Failed to get Patent MIS Information"
+            message: "Failed to get MIS Information"
         });
     }
 });
@@ -74,7 +74,7 @@ router.patch('/api/updatepatentid/:id', async(req, res) => {
         }
         res.status(201).json({
             data: updatePatent,
-            message: "Patent MIS Information successfully updated"
+            message: "MIS Information successfully updated"
         });
     } catch (err) {
         res.status(500).json({
@@ -85,17 +85,17 @@ router.patch('/api/updatepatentid/:id', async(req, res) => {
 });
 
 router.patch('/api/updatepatent/:ref', async(req, res) => {
+    const ref = req.params.ref;
+    const data = req.body;
+    delete data.ref_no;
     try{
-        const ref = req.params.ref;
-        const data = req.body;
-        delete data.ref_no;
         const updatePatent = await MISPatentsSchema.findOneAndUpdate({ ref_no: ref }, data, { new: true });
         if(!updatePatent){
-            return res.status(404).json({message: "Patent Reference Number Not Found"});
+            return res.status(404).json({error: "Patent Reference Number Not Found"});
         }
         res.status(201).json({
             data: updatePatent,
-            message: "Patent MIS Information successfully updated"
+            message: "MIS Information successfully updated"
         });
     } catch (err) {
         res.status(500).json({
