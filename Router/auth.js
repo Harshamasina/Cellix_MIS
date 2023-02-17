@@ -21,7 +21,10 @@ router.post('/api/patent', async(req, res) => {
         }
     } catch (err) {
         console.error(err);
-        res.status(500).send('MIS Information failed to Stored');
+        res.status(500).json({
+            error: err,
+            message: 'MIS Information failed to Stored'
+        });
     }
 });
 
@@ -34,7 +37,10 @@ router.get('/api/getpatents', async(req, res) => {
         });
     } catch (err) {
         console.error(err);
-        res.status(422).json({message: "Failed to get Patents MIS Information"});
+        res.status(422).json({
+            error: err,
+            message: "Failed to get Patents MIS Information"
+        });
     }
 });
 
@@ -48,7 +54,48 @@ router.get('/api/getpatent/:ref', async(req, res) => {
         });
     } catch (err) {
         console.error(err);
-        res.status(422).send({message: "Failed to get Patent MIS Information"});
+        res.status(422).json({
+            error: err,
+            message: "Failed to get Patent MIS Information"
+        });
+    }
+});
+
+router.patch('/api/updatepatentid/:id', async(req, res) => {
+    const id = req.params.id;
+    const data = req.body;
+    // if(data.ref_no){
+    //     return res.status(400).json({error: "Reference Number cannot be updated"})
+    // }
+    try{
+        const updatePatent = await MISPatentsSchema.findByIdAndUpdate(id, req.body, { new: true });
+        res.status(201).json({
+            data: updatePatent,
+            message: "Patent MIS Information successfully updated"
+        });
+    } catch (err) {
+        res.status(500).json({
+            error: err,
+            message: "Failed to Update the MIS Information"
+        });
+    }
+});
+
+router.patch('/api/updatepatent/:ref', async(req, res) => {
+    const ref = req.params.ref;
+    const data = req.body;
+    delete data.ref_no;
+    try{
+        const updatePatent = await MISPatentsSchema.findOneAndUpdate(ref, data, { new: true });
+        res.status(201).json({
+            data: updatePatent,
+            message: "Patent MIS Information successfully updated"
+        });
+    } catch (err) {
+        res.status(500).json({
+            error: err,
+            message: "Failed to Update the MIS Information"
+        });
     }
 });
 
