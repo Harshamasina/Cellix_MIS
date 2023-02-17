@@ -48,6 +48,9 @@ router.get('/api/getpatent/:ref', async(req, res) => {
     const ref = req.params.ref;
     try{
         const data = await MISPatentsSchema.find({ ref_no: ref });
+        if(!data){
+            return res.status(404).json({message: "Patent Reference Number Not Found"});
+        }
         res.status(201).json({
             data: data,
             message: "Patent MIS Information sent Successfully"
@@ -64,11 +67,11 @@ router.get('/api/getpatent/:ref', async(req, res) => {
 router.patch('/api/updatepatentid/:id', async(req, res) => {
     const id = req.params.id;
     const data = req.body;
-    // if(data.ref_no){
-    //     return res.status(400).json({error: "Reference Number cannot be updated"})
-    // }
     try{
         const updatePatent = await MISPatentsSchema.findByIdAndUpdate(id, req.body, { new: true });
+        if(!data.ref_no){
+            return res.status(400).json({error: "Reference Number cannot be updated"})
+        }
         res.status(201).json({
             data: updatePatent,
             message: "Patent MIS Information successfully updated"
@@ -82,11 +85,14 @@ router.patch('/api/updatepatentid/:id', async(req, res) => {
 });
 
 router.patch('/api/updatepatent/:ref', async(req, res) => {
-    const ref = req.params.ref;
-    const data = req.body;
-    delete data.ref_no;
     try{
-        const updatePatent = await MISPatentsSchema.findOneAndUpdate(ref, data, { new: true });
+        const ref = req.params.ref;
+        const data = req.body;
+        delete data.ref_no;
+        const updatePatent = await MISPatentsSchema.findOneAndUpdate({ ref_no: ref }, data, { new: true });
+        if(!updatePatent){
+            return res.status(404).json({message: "Patent Reference Number Not Found"});
+        }
         res.status(201).json({
             data: updatePatent,
             message: "Patent MIS Information successfully updated"
