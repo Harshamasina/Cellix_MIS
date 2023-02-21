@@ -31,10 +31,7 @@ router.post('/api/patent', async(req, res) => {
 router.get('/api/getpatents', async(req, res) => {
     try{
         const data = await MISPatentsSchema.find();
-        res.status(201).json({
-            data: data,
-            message: "Patents MIS Information sent Successfully"
-        });
+        res.status(201).json(data);
     } catch (err) {
         console.error(err);
         res.status(422).json({
@@ -51,10 +48,7 @@ router.get('/api/getpatent/:ref', async(req, res) => {
         if(!data){
             return res.status(404).json({message: "Patent Reference Number Not Found"});
         }
-        res.status(201).json({
-            data: data,
-            message: "MIS Information sent Successfully"
-        });
+        res.status(201).json(data);
     } catch (err) {
         console.error(err);
         res.status(422).json({
@@ -102,6 +96,27 @@ router.patch('/api/updatepatent/:ref', async(req, res) => {
             error: err,
             message: "Failed to Update the MIS Information"
         });
+    }
+});
+
+router.get('/api/searchpatents/:search', async(req, res) => {
+    try{
+        const search = req.params.search;
+        const patentsSearchData = await MISPatentsSchema.find(
+            {
+                $or: [
+                    {ref_no: {$regex: search, $options: '$i'}},
+                    {prv_appno: {$regex: search, $options: '$i'}},
+                    {pct_appno: {$regex: search, $options: '$i'}}
+                ]
+            }
+        ).exec();
+        res.status(201).json(patentsSearchData);        
+    } catch (err) {
+        res.status(500).json({
+            error: err,
+            message: "No Patent Found"
+        })
     }
 });
 

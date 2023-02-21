@@ -152,5 +152,5 @@ const patentMISSchema = new mongoose.Schema({
     timestamps: true
 });
 
-const MISpatents = mongoose.model('miscellixibiopatents', patentMISSchema);
+const MISpatents = mongoose.model('mispatents', patentMISSchema);
 module.exports = MISpatents;
