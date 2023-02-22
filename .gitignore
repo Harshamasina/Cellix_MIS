@@ -6,6 +6,7 @@
 .pnp.js
 .env
 Todos.txt
+test.txt
 
 # testing
 /coverage
