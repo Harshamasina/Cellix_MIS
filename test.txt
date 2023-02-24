@@ -313,3 +313,104 @@ app.post("/verifyotp", async (req, res) => {
   // Return the JWT token
   res.send({ message: "OTP verified", token: token });
 });
+
+
+
+
+            const filteredArray = docs.filter((doc) => {
+            const diffDays1 =  getDifferenceInDays(currentDate, new Date(doc.prv_dof));
+            const diffDays2 =  getDifferenceInDays(currentDate, new Date(doc.pct_dof));
+            if(diffDays1 <= 60 || diffDays2 <= 60){
+                return true;
+            }
+            const npeDates = doc.npe.map((npeDate) => {
+                return npeDate.npe_dof;
+            }).concat(doc.npe.map((npeData) => {
+                return npeData.npe_grant;
+            }));
+            for(const npeFieldDate of npeDates ){
+                const diffDays = getDifferenceInDays(currentDate, new Date(npeFieldDate));
+                if(diffDays <= 60){
+                    return true;
+                }
+            }
+            return false;
+        });
+        // const sortedArray = filteredArray.sort((a, b) => {
+        //     const diffDays1 = getDifferenceInDays(currentDate, a.prv_dof);
+        //     const diffInDays2 = getDifferenceInDays(currentDate, a.pct_dof);
+        //     let nestedDiffA = 0;
+        //     a.npe.forEach((subdoc) => {
+        //         nestedDiffA += getDifferenceInDays(currentDate, subdoc.npe_dof);
+        //         nestedDiffA += getDifferenceInDays(currentDate, subdoc.npe_grant);
+        //     });
+        //     const totalDiffA = diffDays1 + diffInDays2 + nestedDiffA;
+        //     const diffInDays3 = getDifferenceInDays(today, b.prv_dof);
+        //     const diffInDays4 = getDifferenceInDays(today, b.pct_dof);
+        //     let nestedDiffB = 0;
+        //     b.subfield4.forEach((subdoc) => {
+        //         nestedDiffB += getDifferenceInDays(today, subdoc.npe_dof);
+        //         nestedDiffB += getDifferenceInDays(today, subdoc.npe_grant);
+        //     });
+        //     const totalDiffB = diffInDays3 + diffInDays4 + nestedDiffB;
+        //     return totalDiffA - totalDiffB;
+        // });
+        console.log(filteredArray.length);
+        res.json(filteredArray);
+
+
+        const sortedArray = filteredArray.map((obj) => {
+            const newObj = {
+              fieldName: '',
+              fieldValue: '',
+            };
+            obj.npe.forEach((subfield) => {
+              const dateField3 = new Date(subfield.npe_dof);
+              const dateField4 = new Date(subfield.npe_grant);
+              newObj.fieldName = 'npe_dof';
+              newObj.fieldValue = subfield.dateField3;
+              if (getDifferenceInDays(currentDate, dateField3) <= 60) {
+                return newObj;
+              }
+              newObj.fieldName = 'dateField4';
+              newObj.fieldValue = subfield.npe_grant;
+              if (getDifferenceInDays(currentDate, dateField4) <= 60) {
+                return newObj;
+              }
+            });
+      
+            const dateField1 = new Date(obj.prv_dof);
+            const dateField2 = new Date(obj.pct_dof);
+            if (getDifferenceInDays(currentDate, dateField1) <= 60) {
+              newObj.fieldName = 'prv_dof';
+              newObj.fieldValue = obj.dateField1;
+              return newObj;
+            } else if (getDifferenceInDays(currentDate, dateField2) <= 60) {
+              newObj.fieldName = 'pct_dof';
+              newObj.fieldValue = obj.dateField2;
+              return newObj;
+            }
+            return newObj;
+        });
+        res.json(sortedArray);
+
+
+        const filteredArray = data.filter((obj) => {
+            let isWithinTwoMonths = false;
+            obj.npe.forEach((subfield) => {
+              const dateField3 = new Date(subfield.npe_appno);
+              const dateField4 = new Date(subfield.npe_grant);
+              const dateField1 = new Date(obj.prv_dof);
+              const dateField2 = new Date(obj.pct_dof);
+                
+              if (
+                getDifferenceInDays(currentDate, dateField3) <= 60 ||
+                getDifferenceInDays(currentDate, dateField4) <= 60 ||
+                getDifferenceInDays(currentDate, dateField1) <= 60 ||
+                getDifferenceInDays(currentDate, dateField2) <= 60
+              ) {
+                isWithinTwoMonths = true;
+              }
+            });
+            return isWithinTwoMonths;
+        });

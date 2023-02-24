@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const MISPatentsSchema = require('../Models/PatentModel');
+const ModelTest = require('../Models/ModelTest');
 
 router.get('/', (res) =>{
     res.send(`Hello from the Cellix MIS Services`)
@@ -20,7 +21,6 @@ router.post('/api/patent', async(req, res) => {
             });
         }
     } catch (err) {
-        console.error(err);
         res.status(500).json({
             error: err,
             message: 'MIS Information failed to Stored'
@@ -33,7 +33,28 @@ router.get('/api/getpatents', async(req, res) => {
         const data = await MISPatentsSchema.find();
         res.status(201).json(data);
     } catch (err) {
-        console.error(err);
+        res.status(422).json({
+            error: err,
+            message: "Failed to get MIS Information"
+        });
+    }
+});
+
+router.get('/api/getpatents/:pageindex', async (req, res) => {
+    try{
+        const pageIndex = parseInt(req.params.pageindex) || 0;
+        const pageSize = 10;
+        const count = await MISPatentsSchema.countDocuments();
+        const Patents = await MISPatentsSchema.find().skip(pageIndex * pageSize).limit(pageSize);
+        const totalPages = Math.ceil(count / pageSize);
+        res.status(201).send({
+            Patents,
+            pageIndex,
+            pageSize,
+            count,
+            totalPages,
+        })
+    } catch(err) {
         res.status(422).json({
             error: err,
             message: "Failed to get MIS Information"
@@ -50,7 +71,6 @@ router.get('/api/getpatent/:ref', async(req, res) => {
         }
         res.status(201).json(data);
     } catch (err) {
-        console.error(err);
         res.status(422).json({
             error: err,
             message: "Failed to get MIS Information"
@@ -59,17 +79,23 @@ router.get('/api/getpatent/:ref', async(req, res) => {
 });
 
 router.patch('/api/updatepatentid/:id', async(req, res) => {
-    const id = req.params.id;
-    const data = req.body;
     try{
-        const updatePatent = await MISPatentsSchema.findByIdAndUpdate(id, req.body, { new: true });
-        if(!data.ref_no){
-            return res.status(400).json({error: "Reference Number cannot be updated"})
+        const id = req.params.id;
+        const data = req.body;
+        const updates = {};
+        for(const key in req.body){
+            if(key === 'ref_no'){
+                continue;
+            }
+            if(req.body[key] !== undefined && req.body[key] !== ''){
+                updates[key] = req.body[key];
+            }
         }
-        res.status(201).json({
-            data: updatePatent,
-            message: "MIS Information successfully updated"
-        });
+        const updatedUser = await MISPatentsSchema.findByIdAndUpdate(id, updates, {new: true, runValidators: true});
+        if(!updatedUser){
+            return res.status(404).json({message: "Referenece Number Not Found"});
+        }
+        res.json(updatedUser);
     } catch (err) {
         res.status(500).json({
             error: err,
@@ -116,6 +142,90 @@ router.get('/api/searchpatents/:search', async(req, res) => {
         res.status(500).json({
             error: err,
             message: "No Patent Found"
+        });
+    }
+});
+
+router.get('/api/notifications', async(req, res) => {
+    try{
+        const data = await ModelTest.find().lean().exec();
+        const currentDate = new Date();
+        
+        const getDifferenceInDays = (date1, date2) => {
+            const oneDay = 24 * 60 * 60 * 1000; // Hours * Minutes * Seconds * Milliseconds
+            const diffInMs = Date.parse(date1) - Date.parse(date2);
+            const diffInDays = Math.floor(diffInMs / oneDay);
+            return diffInDays;
+        }
+
+        const filteredArray = data.filter(item => {
+            let flag = false;
+            if (item.prv_dof && getDifferenceInDays(currentDate, item.prv_dof) <= 60) {
+              flag = true;
+            }
+            if (item.pct_dof && getDifferenceInDays(currentDate, item.pct_dof) <= 60) {
+              flag = true;
+            }
+            if (item.npe && item.npe.length > 0) {
+              item.npe.forEach(subitem => {
+                if (subitem.npe_appno && getDifferenceInDays(currentDate, subitem.npe_appno) <= 60) {
+                  flag = true;
+                }
+                if (subitem.npe_grant && getDifferenceInDays(currentDate, subitem.npe_grant) <= 60) {
+                  flag = true;
+                }
+              });
+            }
+            return flag;
+        });
+
+        const sortedArray = filteredArray.map(item => {
+            const dates = [];
+            if (item.prv_dof && getDifferenceInDays(currentDate, item.prv_dof) <= 60) {
+              dates.push({
+                fieldName: 'prv_dof',
+                fieldValue: item.prv_dof,
+                differenceInDays: getDifferenceInDays(currentDate, item.prv_dof)
+              });
+            }
+            if (item.pct_dof && getDifferenceInDays(currentDate, item.pct_dof) <= 60) {
+              dates.push({
+                fieldName: 'pct_dof',
+                fieldValue: item.pct_dof,
+                differenceInDays: getDifferenceInDays(currentDate, item.pct_dof)
+              });
+            }
+            if (item.npe && item.npe.length > 0) {
+              item.npe.forEach(subitem => {
+                if (subitem.npe_appno && getDifferenceInDays(currentDate, subitem.npe_appno) <= 60) {
+                  dates.push({
+                    fieldName: 'npe.npe_appno',
+                    country: subitem.npe_country,
+                    fieldValue: subitem.npe_appno,
+                    differenceInDays: getDifferenceInDays(currentDate, subitem.npe_appno)
+                  });
+                }
+                if (subitem.npe_grant && getDifferenceInDays(currentDate, subitem.npe_grant) <= 60) {
+                  dates.push({
+                    fieldName: 'npe.npe_grant',
+                    country: subitem.npe_country,
+                    fieldValue: subitem.npe_grant,
+                    differenceInDays: getDifferenceInDays(currentDate, subitem.npe_grant)
+                  });
+                }
+              });
+            }
+            return { 
+                _id: item._id, 
+                ref_no: item.ref_no,
+                dates 
+            };
+        });
+        res.json(sortedArray);
+    } catch(err) {
+        res.status(500).json({
+            error: err,
+            message: "No notifications Found"
         })
     }
 });
