@@ -3,7 +3,7 @@ const router = express.Router();
 const MISPatentsSchema = require('../Models/PatentModel');
 const ModelTest = require('../Models/ModelTest');
 
-router.get('/', (res) =>{
+router.get('/', (req , res) => {
     res.send(`Hello from the Cellix MIS Services`)
 });
 
@@ -43,7 +43,7 @@ router.get('/api/getpatents', async(req, res) => {
 router.get('/api/getpatents/:pageindex', async (req, res) => {
     try{
         const pageIndex = parseInt(req.params.pageindex) || 0;
-        const pageSize = 10;
+        const pageSize = 9;
         const count = await MISPatentsSchema.countDocuments();
         const Patents = await MISPatentsSchema.find().skip(pageIndex * pageSize).limit(pageSize);
         const totalPages = Math.ceil(count / pageSize);
@@ -81,7 +81,6 @@ router.get('/api/getpatent/:ref', async(req, res) => {
 router.patch('/api/updatepatentid/:id', async(req, res) => {
     try{
         const id = req.params.id;
-        const data = req.body;
         const updates = {};
         for(const key in req.body){
             if(key === 'ref_no'){
@@ -91,11 +90,11 @@ router.patch('/api/updatepatentid/:id', async(req, res) => {
                 updates[key] = req.body[key];
             }
         }
-        const updatedUser = await MISPatentsSchema.findByIdAndUpdate(id, updates, {new: true, runValidators: true});
-        if(!updatedUser){
-            return res.status(404).json({message: "Referenece Number Not Found"});
+        const updatedPatent = await MISPatentsSchema.findByIdAndUpdate(id, updates, {new: true, runValidators: true});
+        if(!updatedPatent){
+            return res.status(404).json({message: "Reference Number Not Found"});
         }
-        res.json(updatedUser);
+        res.json(updatedPatent);
     } catch (err) {
         res.status(500).json({
             error: err,

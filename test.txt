@@ -414,3 +414,24 @@ app.post("/verifyotp", async (req, res) => {
             });
             return isWithinTwoMonths;
         });
+
+
+
+
+        
+
+        const { wno, pct, year, therapeutic_area, publication_date, diseases, claims, formulas, compounds } = req.body;
+        if( !wno || !pct || !year || !therapeutic_area || !publication_date || !diseases ){
+            return res.status(400).json({
+                message: "wno, pct, year, therapeutic_area, publication_date are mandatory"
+            });
+        }
+        const existingPatent = await patentSchema.find({ wno, pct });
+        if(existingPatent){
+            return res.status(409).json({
+                message: "Patent Already Exists"
+            });
+        }
+        const patent = new patent({ wno, pct, year, therapeutic_area, publication_date, diseases, claims, formulas, compounds });
+        const newPatent = await patent.save();
+        res.status(201).json(newPatent);
