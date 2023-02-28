@@ -78,6 +78,22 @@ router.get('/api/getpatent/:ref', async(req, res) => {
     }
 });
 
+router.get('/api/getpatentid/:id', async(req, res) => {
+    const id = req.params.id;
+    try{
+        const data = await MISPatentsSchema.findOne({ _id: id });
+        if(!data){
+            return res.status(404).json({message: "Patent Not Found"});
+        }
+        res.status(201).json(data);
+    } catch (err) {
+        res.status(422).json({
+            error: err,
+            message: "Failed to get MIS Information"
+        });
+    }
+});
+
 router.patch('/api/updatepatentid/:id', async(req, res) => {
     try{
         const id = req.params.id;
