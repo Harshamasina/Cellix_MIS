@@ -127,6 +127,11 @@ router.patch('/api/addnewnpe/:id', async(req, res) => {
         if(!document){
             return res.status(404).json({ error: "Patent Not Found" })
         }
+
+        if (!req.body.npe || req.body.npe.length === 0) {
+            return res.status(400).send({ error: "No data to update" });
+        }
+        
         const updatedData = {
             npe: [
                 ...document.npe,
