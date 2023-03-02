@@ -119,6 +119,31 @@ router.patch('/api/updatepatentid/:id', async(req, res) => {
     }
 });
 
+
+router.patch('/api/addnewnpe/:id', async(req, res) => {
+    try{
+        const { id } = req.params;
+        const document = await MISPatentsSchema.findById(id);
+        if(!document){
+            return res.status(404).json({ error: "Patent Not Found" })
+        }
+        const updatedData = {
+            npe: [
+                ...document.npe,
+                ...req.body.npe,
+            ],
+        };
+        const updateDocument = await MISPatentsSchema.findByIdAndUpdate(id, updatedData, { new: true });
+        res.status(200).json(updateDocument);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            error: err,
+            message: "Failed to Update the MIS Information"
+        });
+    }
+});
+
 router.patch('/api/updatepatent/:ref', async(req, res) => {
     const ref = req.params.ref;
     const data = req.body;
@@ -139,6 +164,7 @@ router.patch('/api/updatepatent/:ref', async(req, res) => {
         });
     }
 });
+
 
 router.get('/api/searchpatents/:search', async(req, res) => {
     try{

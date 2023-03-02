@@ -63,7 +63,7 @@ const NPESchema = new mongoose.Schema({
     },
     // NPE EP Granted / Rejected
     npe_ep_desc: {
-        type: Boolean
+        type: String
     },
     // NPE EP claim to publication Date
     npe_ep_pub: {
