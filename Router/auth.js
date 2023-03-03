@@ -199,7 +199,7 @@ router.get('/api/notifications', async(req, res) => {
         
         const getDifferenceInDays = (date1, date2) => {
             const oneDay = 24 * 60 * 60 * 1000; // Hours * Minutes * Seconds * Milliseconds
-            const diffInMs = Date.parse(date1) - Date.parse(date2);
+            const diffInMs =  Date.parse(date2) - Date.parse(date1);
             const diffInDays = Math.floor(diffInMs / oneDay);
             return diffInDays;
         }
@@ -214,7 +214,7 @@ router.get('/api/notifications', async(req, res) => {
             }
             if (item.npe && item.npe.length > 0) {
               item.npe.forEach(subitem => {
-                if (subitem.npe_appno && getDifferenceInDays(currentDate, subitem.npe_appno) <= 60) {
+                if (subitem.npe_dof && getDifferenceInDays(currentDate, subitem.npe_dof) <= 60) {
                   flag = true;
                 }
                 if (subitem.npe_grant && getDifferenceInDays(currentDate, subitem.npe_grant) <= 60) {
@@ -227,14 +227,14 @@ router.get('/api/notifications', async(req, res) => {
 
         const sortedArray = filteredArray.map(item => {
             const dates = [];
-            if (item.prv_dof && getDifferenceInDays(currentDate, item.prv_dof) <= 60) {
+            if (item.prv_dof && getDifferenceInDays(currentDate, item.prv_dof) <= 60 && getDifferenceInDays(currentDate, item.prv_dof) >= 0) {
               dates.push({
                 fieldName: 'prv_dof',
                 fieldValue: item.prv_dof,
                 differenceInDays: getDifferenceInDays(currentDate, item.prv_dof)
               });
             }
-            if (item.pct_dof && getDifferenceInDays(currentDate, item.pct_dof) <= 60) {
+            if (item.pct_dof && getDifferenceInDays(currentDate, item.pct_dof && getDifferenceInDays(currentDate, item.pct_dof) >= 0) <= 60) {
               dates.push({
                 fieldName: 'pct_dof',
                 fieldValue: item.pct_dof,
@@ -243,15 +243,15 @@ router.get('/api/notifications', async(req, res) => {
             }
             if (item.npe && item.npe.length > 0) {
               item.npe.forEach(subitem => {
-                if (subitem.npe_appno && getDifferenceInDays(currentDate, subitem.npe_appno) <= 60) {
+                if (subitem.npe_dof && getDifferenceInDays(currentDate, subitem.npe_dof) <= 60 && getDifferenceInDays(currentDate, subitem.npe_dof) >= 0) {
                   dates.push({
-                    fieldName: 'npe.npe_appno',
+                    fieldName: 'npe.npe_dof',
                     country: subitem.npe_country,
-                    fieldValue: subitem.npe_appno,
-                    differenceInDays: getDifferenceInDays(currentDate, subitem.npe_appno)
+                    fieldValue: subitem.npe_dof,
+                    differenceInDays: getDifferenceInDays(currentDate, subitem.npe_dof)
                   });
                 }
-                if (subitem.npe_grant && getDifferenceInDays(currentDate, subitem.npe_grant) <= 60) {
+                if (subitem.npe_grant && getDifferenceInDays(currentDate, subitem.npe_grant) <= 60 && getDifferenceInDays(currentDate, subitem.npe_grant) >= 0) {
                   dates.push({
                     fieldName: 'npe.npe_grant',
                     country: subitem.npe_country,
@@ -261,6 +261,7 @@ router.get('/api/notifications', async(req, res) => {
                 }
               });
             }
+            
             return { 
                 _id: item._id, 
                 ref_no: item.ref_no,
