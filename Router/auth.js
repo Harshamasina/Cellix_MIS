@@ -9,8 +9,8 @@ router.get('/', (req , res) => {
 
 router.post('/api/patent', async(req, res) => {
     try {
-        const data = new MISPatentsSchema(req.body);
-        const ref = await MISPatentsSchema.findOne({ ref_no: data.ref_no });
+        const data = new ModelTest(req.body);
+        const ref = await ModelTest.findOne({ ref_no: data.ref_no });
         if(ref){
             res.status(422).json({message: "Patent MIS Information Already Exists"});
         } else {
@@ -40,7 +40,7 @@ router.get('/api/getpatents', async(req, res) => {
     }
 });
 
-router.get('/api/getpatents/:pageindex', async (req, res) => {
+router.get('/api/getpatents/:pageindex', async(req, res) => {
     try{
         const pageIndex = parseInt(req.params.pageindex) || 0;
         const pageSize = 9;
