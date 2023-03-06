@@ -10,8 +10,11 @@ router.get('/', (req , res) => {
 router.post('/api/patent', async(req, res) => {
     try {
         const data = new ModelTest(req.body);
+        const ref_no = req.body.ref_no;
         const ref = await ModelTest.findOne({ ref_no: data.ref_no });
-        if(ref){
+        if(!ref_no){
+            res.status(422).json({message: "Reference Number is Mandatory"});
+        } else if(ref){
             res.status(422).json({message: "Patent MIS Information Already Exists"});
         } else {
             const MISPatent = await data.save();
@@ -106,7 +109,7 @@ router.patch('/api/updatepatentid/:id', async(req, res) => {
                 updates[key] = req.body[key];
             }
         }
-        const updatedPatent = await MISPatentsSchema.findByIdAndUpdate(id, updates, {new: true, runValidators: true});
+        const updatedPatent = await ModelTest.findByIdAndUpdate(id, updates, {new: true, runValidators: true});
         if(!updatedPatent){
             return res.status(404).json({message: "Reference Number Not Found"});
         }
@@ -179,7 +182,9 @@ router.get('/api/searchpatents/:search', async(req, res) => {
                 $or: [
                     {ref_no: {$regex: search, $options: '$i'}},
                     {prv_appno: {$regex: search, $options: '$i'}},
-                    {pct_appno: {$regex: search, $options: '$i'}}
+                    {pct_appno: {$regex: search, $options: '$i'}},
+                    {'npe.npe_appno': {$regex: search, $options: '$i'}},
+                    {'npe.npe_patent': {$regex: search, $options: '$i'}}
                 ]
             }
         ).exec();
