@@ -109,7 +109,7 @@ router.patch('/api/updatepatentid/:id', async(req, res) => {
                 updates[key] = req.body[key];
             }
         }
-        const updatedPatent = await ModelTest.findByIdAndUpdate(id, updates, {new: true, runValidators: true});
+        const updatedPatent = await MISPatentsSchema.findByIdAndUpdate(id, updates, {new: true, runValidators: true});
         if(!updatedPatent){
             return res.status(404).json({message: "Reference Number Not Found"});
         }
