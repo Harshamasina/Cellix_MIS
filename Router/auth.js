@@ -33,7 +33,7 @@ router.post('/api/patent', async(req, res) => {
 
 router.get('/api/getpatents', async(req, res) => {
     try{
-        const data = await MISPatentsSchema.find();
+        const data = await ModelTest.find();
         res.status(201).json(data);
     } catch (err) {
         res.status(422).json({
@@ -68,7 +68,7 @@ router.get('/api/getpatents/:pageindex', async(req, res) => {
 router.get('/api/getpatent/:ref', async(req, res) => {
     const ref = req.params.ref;
     try{
-        const data = await MISPatentsSchema.findOne({ ref_no: ref });
+        const data = await ModelTest.findOne({ ref_no: ref });
         if(!data){
             return res.status(404).json({message: "Patent Reference Number Not Found"});
         }
