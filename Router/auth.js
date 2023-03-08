@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const MISPatentsSchema = require('../Models/PatentModel');
 const ModelTest = require('../Models/ModelTest');
+const BackupModel = require('../Models/BackupModel');
 
 router.get('/', (req , res) => {
     res.send(`Hello from the Cellix MIS Services`)
@@ -84,7 +85,7 @@ router.get('/api/getpatent/:ref', async(req, res) => {
 router.get('/api/getpatentid/:id', async(req, res) => {
     const id = req.params.id;
     try{
-        const data = await MISPatentsSchema.findOne({ _id: id });
+        const data = await ModelTest.findOne({ _id: id });
         if(!data){
             return res.status(404).json({message: "Patent Not Found"});
         }
@@ -109,7 +110,7 @@ router.patch('/api/updatepatentid/:id', async(req, res) => {
                 updates[key] = req.body[key];
             }
         }
-        const updatedPatent = await MISPatentsSchema.findByIdAndUpdate(id, updates, {new: true, runValidators: true});
+        const updatedPatent = await ModelTest.findByIdAndUpdate(id, updates, {new: true, runValidators: true});
         if(!updatedPatent){
             return res.status(404).json({message: "Reference Number Not Found"});
         }
@@ -193,6 +194,34 @@ router.get('/api/searchpatents/:search', async(req, res) => {
         res.status(500).json({
             error: err,
             message: "No Patent Found"
+        });
+    }
+});
+
+router.delete('/api/:id/deletenpe/:npeid', async(req, res) => {
+    const { id, npeid } = req.params;
+    try{
+        const patent = await ModelTest.findById(id);
+        if(!patent){
+            res.status(404).json({message: "Application Family Data not found"});
+        }
+        const npeData = patent.npe.id(npeid);
+        if(!npeData){
+            res.status(404).json({message: "NPE Data not found"});
+        }
+        // const removedNPE = {
+        //     ...npeData.toObject(),
+        //     ref_no: patent.ref_no,
+        //     pct_appno: patent.pct_appno,
+        // }
+        const removedNPE = await BackupModel.create(npeData.toObject());
+        // await patent.npe.pull(npeid);
+        // await patent.save();
+        res.status(200).json(removedNPE);
+    } catch (err) {
+        res.status(500).json({
+            error: err,
+            message: "Failed To delete Data"
         });
     }
 });
