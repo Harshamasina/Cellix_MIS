@@ -174,7 +174,6 @@ router.patch('/api/updatepatent/:ref', async(req, res) => {
     }
 });
 
-
 router.get('/api/searchpatents/:search', async(req, res) => {
     try{
         const search = req.params.search;

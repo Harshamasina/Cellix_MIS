@@ -435,3 +435,19 @@ app.post("/verifyotp", async (req, res) => {
         const patent = new patent({ wno, pct, year, therapeutic_area, publication_date, diseases, claims, formulas, compounds });
         const newPatent = await patent.save();
         res.status(201).json(newPatent);
+
+
+
+
+
+        const { ref_no } = patent;
+        const newNPE = {
+            ...npeData.toObject(),
+            ref_no,
+        };
+        const deletedNPE = new BackupModel({
+            ...newNPE,
+        });
+        await BackupModel.save();
+        await patent.npe.pull(npeid);
+        await patent.save();

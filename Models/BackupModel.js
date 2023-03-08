@@ -75,20 +75,16 @@ const NPESchema = new mongoose.Schema({
     timestamps: true
 });
 
-const patentMISSchema = new mongoose.Schema({
+const BackupNPESchema = new mongoose.Schema({
     // Reference Number
     ref_no: {
         type: String
     },
-    // PCT Application Number
-    pct_appno: {
-        type: String
-    },
-    // NPE
+    //NPE
     npe: [NPESchema]
 }, {
     timestamps: true
 });
 
-const BackupModel = mongoose.model('backupnpepatents', patentMISSchema);
+const BackupModel = mongoose.model('backupnpepatents', BackupNPESchema);
 module.exports = BackupModel;
