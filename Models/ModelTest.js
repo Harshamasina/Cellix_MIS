@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 
 const PRVSchema = new mongoose.Schema({
     prv_appno: {
-        type: String,
-        unique: true
+        type: String
     },
     prv_dof: {
         type: String
@@ -37,8 +36,7 @@ const NPEAFSchema = new mongoose.Schema({
 const NPESchema = new mongoose.Schema({
     // NPE Country
     npe_country: {
-        type: String,
-        unique: true
+        type: String
     },
     // NPE Firms
     npe_firms: {
@@ -50,8 +48,7 @@ const NPESchema = new mongoose.Schema({
     },
     // NPE Application Number
     npe_appno: {
-        type: String,
-        unique: true
+        type: String
     },
     // NPE Country Divisional Number
     npe_country_div: {
@@ -69,8 +66,7 @@ const NPESchema = new mongoose.Schema({
     },
     // NPE Patent Number
     npe_patent: {
-        type: String,
-        unique: true
+        type: String
     },
     // NPE Issue Fee Date
     npe_if: {

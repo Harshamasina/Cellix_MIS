@@ -58,23 +58,38 @@ router.get('/api/getpatents', async(req, res) => {
 
 router.get('/api/getpatents/:pageindex', async(req, res) => {
     try{
-        const pageIndex = parseInt(req.params.pageindex) || 0;
-        const pageSize = 9;
-        const count = await MISPatentsSchema.countDocuments();
-        const Patents = await MISPatentsSchema.find().skip(pageIndex * pageSize).limit(pageSize);
-        const totalPages = Math.ceil(count / pageSize);
-        res.status(201).send({
-            Patents,
-            pageIndex,
-            pageSize,
-            count,
-            totalPages,
-        })
+      const pageIndex = parseInt(req.params.pageindex) || 0;
+      const pageSize = 5;
+      const count = await MISPatentsSchema.countDocuments();
+      const sortQuery = {};
+      if (req.query.sort) {
+        const parts = req.query.sort.split(':');
+        const fieldName = parts[0];
+        const sortDirection = parts[1] === 'desc' ? -1 : 1;
+        if (fieldName === 'prv.prv_dof') {
+          sortQuery['prv.0.prv_dof'] = sortDirection;
+        } else {
+          sortQuery[fieldName] = sortDirection;
+        }
+      }
+      const Patents = await MISPatentsSchema
+        .find()
+        .skip(pageIndex * pageSize)
+        .limit(pageSize)
+        .sort(sortQuery);
+      const totalPages = Math.ceil(count / pageSize);
+      res.status(201).json({
+        Patents,
+        pageIndex,
+        pageSize,
+        count,
+        totalPages,
+      });
     } catch(err) {
-        res.status(422).json({
-            error: err,
-            message: "Failed to get MIS Information"
-        });
+      res.status(422).json({
+        error: err,
+        message: "Failed to get MIS Information"
+      });
     }
 });
 
@@ -128,36 +143,6 @@ router.patch('/api/updatepatentid/:id', async(req, res) => {
         }
         res.json(updatedPatent);
     } catch (err) {
-        res.status(500).json({
-            error: err,
-            message: "Failed to Update the MIS Information"
-        });
-    }
-});
-
-
-router.patch('/api/addnewnpe/:id', async(req, res) => {
-    try{
-        const { id } = req.params;
-        const document = await MISPatentsSchema.findById(id);
-        if(!document){
-            return res.status(404).json({ error: "Patent Not Found" })
-        }
-
-        if (!req.body.npe || req.body.npe.length === 0) {
-            return res.status(400).send({ error: "No data to update" });
-        }
-        
-        const updatedData = {
-            npe: [
-                ...document.npe,
-                ...req.body.npe,
-            ],
-        };
-        const updateDocument = await MISPatentsSchema.findByIdAndUpdate(id, updatedData, { new: true });
-        res.status(200).json(updateDocument);
-    } catch (err) {
-        console.error(err);
         res.status(500).json({
             error: err,
             message: "Failed to Update the MIS Information"
