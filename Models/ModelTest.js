@@ -1,5 +1,17 @@
 const mongoose = require('mongoose');
 
+const PRVSchema = new mongoose.Schema({
+    prv_appno: {
+        type: String,
+        unique: true
+    },
+    prv_dof: {
+        type: String
+    }
+}, {
+    timestamps: true
+});
+
 const NPEOASchema = new mongoose.Schema({
     npe_oa_descp: {
         type: String
@@ -25,22 +37,24 @@ const NPEAFSchema = new mongoose.Schema({
 const NPESchema = new mongoose.Schema({
     // NPE Country
     npe_country: {
-        type: String
+        type: String,
+        unique: true
     },
-    // NPE Country Divisional Number
-    npe_country_div: {
-        type: String
-    },
-    // NPE Application Number
-    npe_appno: {
+    // NPE Firms
+    npe_firms: {
         type: String
     },
     // NPE Date of Filing
     npe_dof: {
         type: String
     },
-    // NPE Firms
-    npe_firms: {
+    // NPE Application Number
+    npe_appno: {
+        type: String,
+        unique: true
+    },
+    // NPE Country Divisional Number
+    npe_country_div: {
         type: String
     },
     // NPE Office Action
@@ -55,7 +69,8 @@ const NPESchema = new mongoose.Schema({
     },
     // NPE Patent Number
     npe_patent: {
-        type: String
+        type: String,
+        unique: true
     },
     // NPE Issue Fee Date
     npe_if: {
@@ -80,14 +95,8 @@ const patentMISSchema = new mongoose.Schema({
     ref_no: {
         type: String
     },
-    // PRV Date of Filing
-    prv_dof: {
-        type: String
-    },
-    // PRV Application Number
-    prv_appno: {
-        type: String
-    },
+    // PRV
+    prv: [PRVSchema],
     // PCT Date of Filing
     pct_dof: {
         type: String
@@ -96,8 +105,11 @@ const patentMISSchema = new mongoose.Schema({
     pct_appno: {
         type: String
     },
+    pct_das: {
+        type: String
+    },
     // PCT ISA Date
-    pct_isa: {
+    pct_isr: {
         type: String
     },
     // PCT Publication Date
@@ -110,10 +122,6 @@ const patentMISSchema = new mongoose.Schema({
     },
     // PCT 30/31 Date
     pct_30_31: {
-        type: String
-    },
-    // PCT Deadline
-    pct_dl: {
         type: String
     },
     // NPE

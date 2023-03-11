@@ -3,6 +3,7 @@ const router = express.Router();
 const MISPatentsSchema = require('../Models/PatentModel');
 const ModelTest = require('../Models/ModelTest');
 const BackupModel = require('../Models/BackupModel');
+const moment = require('moment/moment');
 
 router.get('/', (req , res) => {
     res.send(`Hello from the Cellix MIS Services`)
@@ -13,11 +14,22 @@ router.post('/api/patent', async(req, res) => {
         const data = new ModelTest(req.body);
         const ref_no = req.body.ref_no;
         const ref = await ModelTest.findOne({ ref_no: data.ref_no });
+        const prvDof = moment(data.prv[0].prv_dof, "YYYY-MM-DD");
         if(!ref_no){
             res.status(422).json({message: "Reference Number is Mandatory"});
         } else if(ref){
             res.status(422).json({message: "Patent MIS Information Already Exists"});
         } else {
+            const pctDof = prvDof.clone().add(12, "months").format("YYYY-MM-DD");
+            const pct18 = prvDof.clone().add(18, "months").format("YYYY-MM-DD");
+            const isr = prvDof.clone().add(19, "months").format("YYYY-MM-DD");
+            const pct22 = prvDof.clone().add(22, "months").format("YYYY-MM-DD");
+            const pct30 = prvDof.clone().add(30, "months").format("YYYY-MM-DD");
+            data.pct_dof = pctDof;
+            data.pct_18 = pct18;
+            data.pct_isr = isr;
+            data.pct_22_md = pct22;
+            data.pct_30_31 = pct30;
             const MISPatent = await data.save();
             res.status(201).json({
                 data: MISPatent,
@@ -177,11 +189,11 @@ router.patch('/api/updatepatent/:ref', async(req, res) => {
 router.get('/api/searchpatents/:search', async(req, res) => {
     try{
         const search = req.params.search;
-        const patentsSearchData = await MISPatentsSchema.find(
+        const patentsSearchData = await ModelTest.find(
             {
                 $or: [
                     {ref_no: {$regex: search, $options: '$i'}},
-                    {prv_appno: {$regex: search, $options: '$i'}},
+                    {'prv.prv_appno': {$regex: search, $options: '$i'}},
                     {pct_appno: {$regex: search, $options: '$i'}},
                     {'npe.npe_appno': {$regex: search, $options: '$i'}},
                     {'npe.npe_patent': {$regex: search, $options: '$i'}}
@@ -225,88 +237,38 @@ router.delete('/api/:id/deletenpe/:npeid', async(req, res) => {
     }
 });
 
-router.get('/api/notifications', async(req, res) => {
+router.get('/api/getnotifications', async (req, res) => {
     try{
-        const data = await ModelTest.find().lean().exec();
-        const currentDate = new Date();
-        
-        const getDifferenceInDays = (date1, date2) => {
-            const oneDay = 24 * 60 * 60 * 1000; // Hours * Minutes * Seconds * Milliseconds
-            const diffInMs =  Date.parse(date2) - Date.parse(date1);
-            const diffInDays = Math.floor(diffInMs / oneDay);
-            return diffInDays;
-        }
-
-        const filteredArray = data.filter(item => {
-            let flag = false;
-            if (item.prv_dof && getDifferenceInDays(currentDate, item.prv_dof) <= 60) {
-              flag = true;
-            }
-            if (item.pct_dof && getDifferenceInDays(currentDate, item.pct_dof) <= 60) {
-              flag = true;
-            }
-            if (item.npe && item.npe.length > 0) {
-              item.npe.forEach(subitem => {
-                if (subitem.npe_dof && getDifferenceInDays(currentDate, subitem.npe_dof) <= 60) {
-                  flag = true;
-                }
-                if (subitem.npe_grant && getDifferenceInDays(currentDate, subitem.npe_grant) <= 60) {
-                  flag = true;
-                }
-              });
-            }
-            return flag;
+        const filteredData = await Data.find({
+            $or: [
+              { 'npe.npe_oa.npe_oa_date': { $lt: moment().add(60, 'days').toDate() } },
+              { 'npe.npe_af.npe_af_date': { $lt: moment().add(30, 'days').toDate() } },
+              { 'npe.npe_if': { $lt: moment().add(60, 'days').toDate() } },
+              { 'npe.npe_rfe': { $lt: moment().add(60, 'days').toDate() } },
+              { 'ref-no': { $lt: moment().add(60, 'days').toDate() } },
+              { 'pct_isr': { $lt: moment().add(60, 'days').toDate() } },
+              { 'pct_18_md': { $lt: moment().add(60, 'days').toDate() } },
+              { 'pct_22': { $lt: moment().add(60, 'days').toDate() } },
+              { 'pct_30': { $lt: moment().add(60, 'days').toDate() } }
+            ]
         });
-
-        const sortedArray = filteredArray.map(item => {
-            const dates = [];
-            if (item.prv_dof && getDifferenceInDays(currentDate, item.prv_dof) <= 60 && getDifferenceInDays(currentDate, item.prv_dof) >= 0) {
-              dates.push({
-                fieldName: 'prv_dof',
-                fieldValue: item.prv_dof,
-                differenceInDays: getDifferenceInDays(currentDate, item.prv_dof)
-              });
+        const mappedData = filteredData.map(data => {
+            const mappedDates = [];
+            if (data.npe.npe_oa && data.npe.npe_oa.npe_oa_date < moment().add(60, 'days').toDate()) {
+                mappedDates.push({
+                  fieldName: 'npe_oa_date',
+                  label: 'OA Date',
+                  dateValue: moment(data.npe.npe_oa.npe_oa_date).format('YYYY-MM-DD'),
+                  diffInDays: moment(data.npe.npe_oa.npe_oa_date).diff(moment(), 'days')
+                });
             }
-            if (item.pct_dof && getDifferenceInDays(currentDate, item.pct_dof && getDifferenceInDays(currentDate, item.pct_dof) >= 0) <= 60) {
-              dates.push({
-                fieldName: 'pct_dof',
-                fieldValue: item.pct_dof,
-                differenceInDays: getDifferenceInDays(currentDate, item.pct_dof)
-              });
-            }
-            if (item.npe && item.npe.length > 0) {
-              item.npe.forEach(subitem => {
-                if (subitem.npe_dof && getDifferenceInDays(currentDate, subitem.npe_dof) <= 60 && getDifferenceInDays(currentDate, subitem.npe_dof) >= 0) {
-                  dates.push({
-                    fieldName: 'npe.npe_dof',
-                    country: subitem.npe_country,
-                    fieldValue: subitem.npe_dof,
-                    differenceInDays: getDifferenceInDays(currentDate, subitem.npe_dof)
-                  });
-                }
-                if (subitem.npe_grant && getDifferenceInDays(currentDate, subitem.npe_grant) <= 60 && getDifferenceInDays(currentDate, subitem.npe_grant) >= 0) {
-                  dates.push({
-                    fieldName: 'npe.npe_grant',
-                    country: subitem.npe_country,
-                    fieldValue: subitem.npe_grant,
-                    differenceInDays: getDifferenceInDays(currentDate, subitem.npe_grant)
-                  });
-                }
-              });
-            }
-            
-            return { 
-                _id: item._id, 
-                ref_no: item.ref_no,
-                dates 
-            };
         });
-        res.json(sortedArray);
-    } catch(err) {
+        res.status(200).json(sortedData);
+    } catch(err){
         res.status(500).json({
             error: err,
             message: "No notifications Found"
-        })
+        });
     }
 });
 
