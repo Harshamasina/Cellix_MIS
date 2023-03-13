@@ -11,9 +11,9 @@ router.get('/', (req , res) => {
 
 router.post('/api/patent', async(req, res) => {
     try {
-        const data = new ModelTest(req.body);
+        const data = new MISPatentsSchema(req.body);
         const ref_no = req.body.ref_no;
-        const ref = await ModelTest.findOne({ ref_no: data.ref_no });
+        const ref = await MISPatentsSchema.findOne({ ref_no: data.ref_no });
         const prvDof = moment(data.prv[0].prv_dof, "YYYY-MM-DD");
         if(!ref_no){
             res.status(422).json({message: "Reference Number is Mandatory"});
@@ -46,7 +46,7 @@ router.post('/api/patent', async(req, res) => {
 
 router.get('/api/getpatents', async(req, res) => {
     try{
-        const data = await ModelTest.find();
+        const data = await MISPatentsSchema.find();
         res.status(201).json(data);
     } catch (err) {
         res.status(422).json({
@@ -93,10 +93,47 @@ router.get('/api/getpatents/:pageindex', async(req, res) => {
     }
 });
 
+router.get('/api/patents/:pageindex', async(req, res) => {
+    try{
+        const pageIndex = parseInt(req.params.pageindex) || 0;
+        const pageSize = parseInt(req.query.pagesize) || 5; // dynamic pageSize
+        const count = await MISPatentsSchema.countDocuments();
+        const sortQuery = {};
+        if (req.query.sort) {
+            const parts = req.query.sort.split(':');
+            const fieldName = parts[0];
+            const sortDirection = parts[1] === 'desc' ? -1 : 1;
+            if (fieldName === 'prv.prv_dof') {
+                sortQuery['prv.0.prv_dof'] = sortDirection;
+            } else {
+                sortQuery[fieldName] = sortDirection;
+            }
+        }
+        const Patents = await MISPatentsSchema
+            .find()
+            .skip(pageIndex * pageSize)
+            .limit(pageSize)
+            .sort(sortQuery);
+        const totalPages = Math.ceil(count / pageSize);
+        res.status(201).json({
+            Patents,
+            pageIndex,
+            pageSize,
+            count,
+            totalPages,
+        });
+    } catch(err) {
+      res.status(422).json({
+        error: err,
+        message: "Failed to get MIS Information"
+      });
+    }
+});
+
 router.get('/api/getpatent/:ref', async(req, res) => {
     const ref = req.params.ref;
     try{
-        const data = await ModelTest.findOne({ ref_no: ref });
+        const data = await MISPatentsSchema.findOne({ ref_no: ref });
         if(!data){
             return res.status(404).json({message: "Patent Reference Number Not Found"});
         }
@@ -112,7 +149,7 @@ router.get('/api/getpatent/:ref', async(req, res) => {
 router.get('/api/getpatentid/:id', async(req, res) => {
     const id = req.params.id;
     try{
-        const data = await ModelTest.findOne({ _id: id });
+        const data = await MISPatentsSchema.findOne({ _id: id });
         if(!data){
             return res.status(404).json({message: "Patent Not Found"});
         }
@@ -137,7 +174,7 @@ router.patch('/api/updatepatentid/:id', async(req, res) => {
                 updates[key] = req.body[key];
             }
         }
-        const updatedPatent = await ModelTest.findByIdAndUpdate(id, updates, {new: true, runValidators: true});
+        const updatedPatent = await MISPatentsSchema.findByIdAndUpdate(id, updates, {new: true, runValidators: true});
         if(!updatedPatent){
             return res.status(404).json({message: "Reference Number Not Found"});
         }
@@ -174,7 +211,7 @@ router.patch('/api/updatepatent/:ref', async(req, res) => {
 router.get('/api/searchpatents/:search', async(req, res) => {
     try{
         const search = req.params.search;
-        const patentsSearchData = await ModelTest.find(
+        const patentsSearchData = await MISPatentsSchema.find(
             {
                 $or: [
                     {ref_no: {$regex: search, $options: '$i'}},
@@ -197,7 +234,7 @@ router.get('/api/searchpatents/:search', async(req, res) => {
 router.delete('/api/:id/deletenpe/:npeid', async(req, res) => {
     const { id, npeid } = req.params;
     try{
-        const patent = await ModelTest.findById(id);
+        const patent = await MISPatentsSchema.findById(id);
         if(!patent){
             res.status(404).json({message: "Application Family Data not found"});
         }
