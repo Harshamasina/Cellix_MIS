@@ -1,5 +1,16 @@
 const mongoose = require('mongoose');
 
+const PRVSchema = new mongoose.Schema({
+    prv_appno: {
+        type: String
+    },
+    prv_dof: {
+        type: String
+    }
+}, {
+    timestamps: true
+});
+
 const NPEOASchema = new mongoose.Schema({
     npe_oa_descp: {
         type: String
@@ -27,20 +38,20 @@ const NPESchema = new mongoose.Schema({
     npe_country: {
         type: String
     },
-    // NPE Country Divisional Number
-    npe_country_div: {
-        type: String
-    },
-    // NPE Application Number
-    npe_appno: {
+    // NPE Firms
+    npe_firms: {
         type: String
     },
     // NPE Date of Filing
     npe_dof: {
         type: String
     },
-    // NPE Firms
-    npe_firms: {
+    // NPE Application Number
+    npe_appno: {
+        type: String
+    },
+    // NPE Country Divisional Number
+    npe_country_div: {
         type: String
     },
     // NPE Office Action
@@ -75,16 +86,50 @@ const NPESchema = new mongoose.Schema({
     timestamps: true
 });
 
-const BackupNPESchema = new mongoose.Schema({
+const patentMISSchema = new mongoose.Schema({
     // Reference Number
     ref_no: {
         type: String
     },
-    //NPE
-    npe: [NPESchema]
+    // PRV
+    prv: [PRVSchema],
+    // PCT Date of Filing
+    pct_dof: {
+        type: String
+    },
+    // PCT Number
+    pct_appno: {
+        type: String
+    },
+    pct_das: {
+        type: String
+    },
+    // PCT ISA Date
+    pct_isr: {
+        type: String
+    },
+    // PCT Publication Date
+    pct_18: {
+        type: String
+    },
+    // PCT 22 Month Date
+    pct_22_md: {
+        type: String
+    },
+    // PCT 30/31 Date
+    pct_30_31: {
+        type: String
+    },
+    // NPE
+    npe: [NPESchema],
+    //Deleted At Date
+    deletedAt: {
+        type: Date,
+        default: Date.now
+    }
 }, {
     timestamps: true
 });
 
-const BackupModel = mongoose.model('backupnpepatents', BackupNPESchema);
-module.exports = BackupModel;
+const MISpatents = mongoose.model('backuppatents', patentMISSchema);
+module.exports = MISpatents;
