@@ -96,7 +96,7 @@ router.get('/api/getpatents/:pageindex', async(req, res) => {
 router.get('/api/patents/:pageindex', async(req, res) => {
     try{
         const pageIndex = parseInt(req.params.pageindex) || 0;
-        const pageSize = parseInt(req.query.pagesize) || 6;
+        const pageSize = parseInt(req.query.pagesize) || 9;
         const count = await MISPatentsSchema.countDocuments();
         const sortQuery = {};
         if (req.query.sort) {
