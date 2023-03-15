@@ -9,6 +9,7 @@ require('./db/Conn');
 app.use(require('./Router/auth'));
 app.use(require('./Router/PatentAuth'));
 app.use(require('./Router/loginAuth'));
+app.use(require('./Router/NotificationAuth'));
 
 app.listen(5000, () => {
     console.log(`server is running at port 5000`);
