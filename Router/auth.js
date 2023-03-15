@@ -12,7 +12,7 @@ router.get('/', (req , res) => {
 
 router.post('/api/patent', async(req, res) => {
     const confirmCode = req.header('confirmCode');
-    if(confirmCode !== process.env.CONFIRMATION_CODE){
+    if(confirmCode !== process.env.CONFIRMATION_CODE_TWO && confirmCode !== process.env.CONFIRMATION_CODE_ONE){
         return res.status(401).json({ error: "Invalid Confirmation Code" });
     }
     try {
@@ -169,7 +169,7 @@ router.get('/api/getpatentid/:id', async(req, res) => {
 
 router.patch('/api/updatepatentid/:id', async(req, res) => {
     const confirmCode = req.header('confirmCode');
-    if(confirmCode !== process.env.CONFIRMATION_CODE){
+    if(confirmCode !== process.env.CONFIRMATION_CODE_TWO && confirmCode !== process.env.CONFIRMATION_CODE_ONE){
         return res.status(401).json({ error: "Invalid Confirmation Code" });
     }
     try{
@@ -243,7 +243,7 @@ router.get('/api/searchpatents/:search', async(req, res) => {
 router.delete('/api/deletepatent/:id', async (req, res) => {
     const { id } = req.params;
     const confirmCode = req.header('confirmCode');
-    if(confirmCode !== process.env.CONFIRMATION_CODE){
+    if(confirmCode !== process.env.CONFIRMATION_CODE_TWO && confirmCode !== process.env.CONFIRMATION_CODE_ONE){
         return res.status(401).json({ error: "Invalid Confirmation Code" });
     }
     try{
