@@ -11,6 +11,10 @@ router.get('/', (req , res) => {
 });
 
 router.post('/api/patent', async(req, res) => {
+    const confirmCode = req.header('confirmCode');
+    if(confirmCode !== process.env.CONFIRMATION_CODE){
+        return res.status(401).json({ error: "Invalid Confirmation Code" });
+    }
     try {
         const data = new MISPatentsSchema(req.body);
         const ref_no = req.body.ref_no;
