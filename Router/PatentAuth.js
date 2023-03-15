@@ -20,6 +20,10 @@ router.get('/api/getpctpatents', async(req, res) => {
 });
 
 router.post('/api/pctpatent', async(req, res) => {
+    const confirmCode = req.header('confirmCode');
+    if(confirmCode !== process.env.CONFIRMATION_CODE_TWO && confirmCode !== process.env.CONFIRMATION_CODE_ONE){
+        return res.status(401).json({ error: "Invalid Confirmation Code" });
+    }
     try {
         const data = new patentSchema(req.body);
         const existingWno = await patentSchema.findOne({ wno: data.wno });
