@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 
 const NotificationSchema = new mongoose.Schema({
+    ref_no: {
+        type: String
+    },
     date: {
         type: String
     },
@@ -9,6 +12,9 @@ const NotificationSchema = new mongoose.Schema({
     },
     descp: {
         type: String
+    },
+    daysLeft: {
+        type: Number
     }
 }, {
     timestamps: true
