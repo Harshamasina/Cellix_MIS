@@ -135,7 +135,19 @@ router.get('/api/patents/:pageindex', async(req, res) => {
     }
 });
 
-router.get('/api/getpatent/:ref', async(req, res) => {
+router.get('/api/getrefs', async (req, res) => {
+    try {
+        const refNumbers = await MISPatentsSchema.find({}, 'ref_no');
+        res.status(201).json(refNumbers);
+    } catch (err) {
+        res.status(422).json({
+        error: err,
+        message: "Failed to get MIS Information"
+      });
+    }
+});
+
+router.get('/api/getpatent/:ref', async (req, res) => {
     const ref = req.params.ref;
     try{
         const data = await MISPatentsSchema.findOne({ ref_no: ref });
