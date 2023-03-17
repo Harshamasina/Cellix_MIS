@@ -139,8 +139,8 @@ router.get('/api/pctnotifications', async (req, res) => {
     try{
         const fields = [
             { name: 'pct_isr', label: 'PCT International Search Report' },
-            { name: 'pct_18', label: 'PCT 18 Month' },
-            { name: 'pct_22_md', label: 'PCT Publication' },
+            { name: 'pct_18', label: 'PCT Publication Date' },
+            { name: 'pct_22_md', label: 'PCT 22 Month' },
             { name: 'pct_30_31', label: 'PCT 30/31 Month' },
         ];
         const currentDate = new Date();
