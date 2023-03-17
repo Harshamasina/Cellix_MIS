@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const moment = require('moment/moment');
+const momentTZ = require('moment-timezone');
 const NotificationSchema = require('../Models/NotificationModel');
 const MISPatentsSchema = require('../Models/PatentModel');
 require('dotenv').config();
@@ -18,7 +19,12 @@ router.post('/api/cnotification', async (req, res) => {
         const currentDate = moment().startOf('day');
         const eventDate = moment(req.body.date).startOf('day');
         const daysLeft = eventDate.diff(currentDate, 'days');
-
+        const ref = await MISPatentsSchema.findOne({ ref_no: req.body.ref_no });
+        if(!ref){
+            return res.status(400).json({
+                error: 'Reference Number not found. Please fill the exact Reference Number from applications page'
+            });
+        }
         const data = new NotificationSchema({
             ref_no: req.body.ref_no,
             date: req.body.date,
@@ -139,21 +145,20 @@ router.get('/api/pctnotifications', async (req, res) => {
     try{
         const fields = [
             { name: 'pct_isr', label: 'PCT International Search Report' },
-            { name: 'pct_18', label: 'PCT Publication Date' },
-            { name: 'pct_22_md', label: 'PCT 22 Month' },
+            { name: 'pct_18', label: 'PCT 18 Month' },
+            { name: 'pct_22_md', label: 'PCT Publication' },
             { name: 'pct_30_31', label: 'PCT 30/31 Month' },
         ];
-        const currentDate = new Date();
+        const currentDate = moment().tz('Asia/Kolkata');
         let results = [];
         const documents = await MISPatentsSchema.find();
         for (const document of documents) {
             for (const field of fields) {
                 const fieldValue = document[field.name];
                 if (fieldValue) {
-                  const fieldValueDate = new Date(fieldValue);
-                  const diffTime = Math.abs(currentDate - fieldValueDate);
-                  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    if (diffDays <= 60) {
+                    const fieldValueDate = momentTZ(fieldValue, 'YYYY-MM-DD').tz('Asia/Kolkata');
+                    const diffDays = fieldValueDate.diff(currentDate, 'days');
+                    if (diffDays >= 0 && diffDays < 60) {
                         results.push({
                             ref_no: document.ref_no,
                             fieldName: field.label,
