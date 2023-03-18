@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const MISPatentsSchema = require('../Models/PatentModel');
-const ModelTest = require('../Models/ModelTest');
 const BackupModel = require('../Models/BackupModel');
 const moment = require('moment/moment');
 require('dotenv').config();
@@ -274,6 +273,43 @@ router.delete('/api/deletepatent/:id', async (req, res) => {
         return res.status(500).json({
             error: err,
             message: "Failed to Delete Application"
+        });
+    }
+});
+
+router.get('/api/deletedapplications', async (req, res) => {
+    try{
+        const data = await BackupModel.find().sort({ deletedAt: 'desc' });
+        res.status(201).json(data);
+    } catch (err) {
+        return res.status(500).json({
+            error: err,
+            message: "Failed to get Deleted Applications"
+        });
+    }
+});
+
+router.post('/api/restoreapplication/:id', async (req, res) => {
+    try {
+        const backupID  = req.params.id;
+        const backupDocument = await BackupModel.findById(backupID);
+        if(!backupDocument){
+            res.status(404).json({error: "Backup Application not found"});
+        }
+        await BackupModel.deleteOne({ _id: backupID });
+        const newDocument = new MISPatentsSchema(backupDocument.toObject());
+        const savedDocument = await newDocument.save();
+        if(!savedDocument){
+            res.status(401).json({ error: `Application Failed to Save: ${savedDocument.ref_no}` });
+        }
+        res.status(201).json({
+            savedDocument,
+            message: "Backup Document successfully restored" 
+        });
+    } catch (err) {
+        return res.status(500).json({
+            error: err,
+            message: "Failed to restore Deleted Applications"
         });
     }
 });
