@@ -144,6 +144,7 @@ router.delete('/api/deletenotification/:id', async (req, res) => {
 router.get('/api/pctnotifications', async (req, res) => {
     try{
         const fields = [
+            { name: 'pct_dof', label: 'PCT Date of Filing' },
             { name: 'pct_isr', label: 'PCT International Search Report' },
             { name: 'pct_18', label: 'PCT 18 Month' },
             { name: 'pct_22_md', label: 'PCT Publication' },
