@@ -9,7 +9,7 @@ router.get('/', (req , res) => {
     res.send(`Hello from the Cellix MIS Services`)
 });
 
-router.post('/api/patent', async(req, res) => {
+router.post('/api/patent', async (req, res) => {
     const confirmCode = req.header('confirmCode');
     if(confirmCode !== process.env.CONFIRMATION_CODE_TWO && confirmCode !== process.env.CONFIRMATION_CODE_ONE){
         return res.status(401).json({ error: "Invalid Confirmation Code" });
@@ -48,7 +48,7 @@ router.post('/api/patent', async(req, res) => {
     }
 });
 
-router.get('/api/getpatents', async(req, res) => {
+router.get('/api/getpatents', async (req, res) => {
     try{
         const data = await MISPatentsSchema.find();
         res.status(201).json(data);
@@ -60,7 +60,7 @@ router.get('/api/getpatents', async(req, res) => {
     }
 });
 
-router.get('/api/getpatents/:pageindex', async(req, res) => {
+router.get('/api/getpatents/:pageindex', async (req, res) => {
     try{
       const pageIndex = parseInt(req.params.pageindex) || 0;
       const pageSize = 5;
@@ -97,7 +97,7 @@ router.get('/api/getpatents/:pageindex', async(req, res) => {
     }
 });
 
-router.get('/api/patents/:pageindex', async(req, res) => {
+router.get('/api/patents/:pageindex', async (req, res) => {
     try{
         const pageIndex = parseInt(req.params.pageindex) || 0;
         const pageSize = parseInt(req.query.pagesize) || 9;
@@ -162,7 +162,7 @@ router.get('/api/getpatent/:ref', async (req, res) => {
     }
 });
 
-router.get('/api/getpatentid/:id', async(req, res) => {
+router.get('/api/getpatentid/:id', async (req, res) => {
     const id = req.params.id;
     try{
         const data = await MISPatentsSchema.findOne({ _id: id });
@@ -178,7 +178,7 @@ router.get('/api/getpatentid/:id', async(req, res) => {
     }
 });
 
-router.patch('/api/updatepatentid/:id', async(req, res) => {
+router.patch('/api/updatepatentid/:id', async (req, res) => {
     const confirmCode = req.header('confirmCode');
     if(confirmCode !== process.env.CONFIRMATION_CODE_TWO && confirmCode !== process.env.CONFIRMATION_CODE_ONE){
         return res.status(401).json({ error: "Invalid Confirmation Code" });
@@ -207,7 +207,7 @@ router.patch('/api/updatepatentid/:id', async(req, res) => {
     }
 });
 
-router.patch('/api/updatepatent/:ref', async(req, res) => {
+router.patch('/api/updatepatent/:ref', async (req, res) => {
     const ref = req.params.ref;
     const data = req.body;
     delete data.ref_no;
@@ -228,7 +228,7 @@ router.patch('/api/updatepatent/:ref', async(req, res) => {
     }
 });
 
-router.get('/api/searchpatents/:search', async(req, res) => {
+router.get('/api/searchpatents/:search', async (req, res) => {
     try{
         const search = req.params.search;
         const patentsSearchData = await MISPatentsSchema.find(
@@ -295,7 +295,7 @@ router.get('/api/deletedapplications', async (req, res) => {
 router.get('/api/deletedapplication/:ref', async (req, res) => {
     try {
         const ref = req.params.ref;
-        const data = await BackupModel.find({ ref_no: ref });
+        const data = await BackupModel.findOne({ ref_no: ref });
         if(!data){
             res.status(404).json({error: "Backup Application not found"});
         }
