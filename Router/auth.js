@@ -280,11 +280,30 @@ router.delete('/api/deletepatent/:id', async (req, res) => {
 router.get('/api/deletedapplications', async (req, res) => {
     try{
         const data = await BackupModel.find().sort({ deletedAt: 'desc' });
+        if(!data){
+            res.status(404).json({error: "Backup Applications not found"});
+        }
         res.status(201).json(data);
     } catch (err) {
         return res.status(500).json({
             error: err,
             message: "Failed to get Deleted Applications"
+        });
+    }
+});
+
+router.get('/api/deletedapplication/:ref', async (req, res) => {
+    try {
+        const ref = req.params.ref;
+        const data = await BackupModel.find({ ref_no: ref });
+        if(!data){
+            res.status(404).json({error: "Backup Application not found"});
+        }
+        res.status(201).json(data);
+    } catch (error) {
+        return res.status(500).json({
+            error: err,
+            message: "Failed to get Deleted Application"
         });
     }
 });
