@@ -19,16 +19,23 @@ router.post('/api/patent', async (req, res) => {
         const ref_no = req.body.ref_no;
         const ref = await MISPatentsSchema.findOne({ ref_no: data.ref_no });
         const prvDof = moment(data.prv[0].prv_dof, "YYYY-MM-DD");
-        if(!ref_no){
+        if (!ref_no) {
             res.status(422).json({message: "Reference Number is Mandatory"});
-        } else if(ref){
+        } else if (ref) {
             res.status(422).json({message: "Patent MIS Information Already Exists"});
         } else {
-            const pctDof = prvDof.clone().add(12, "months").format("YYYY-MM-DD");
-            const pct18 = prvDof.clone().add(18, "months").format("YYYY-MM-DD");
-            const isr = prvDof.clone().add(19, "months").format("YYYY-MM-DD");
-            const pct22 = prvDof.clone().add(22, "months").format("YYYY-MM-DD");
-            const pct30 = prvDof.clone().add(30, "months").format("YYYY-MM-DD");
+            let pctDof = "";
+            let pct18 = "";
+            let isr = "";
+            let pct22 = "";
+            let pct30 = "";
+            if(prvDof.isValid()){
+                pctDof = prvDof.clone().add(12, "months").format("YYYY-MM-DD");
+                pct18 = prvDof.clone().add(18, "months").format("YYYY-MM-DD");
+                isr = prvDof.clone().add(19, "months").format("YYYY-MM-DD");
+                pct22 = prvDof.clone().add(22, "months").format("YYYY-MM-DD");
+                pct30 = prvDof.clone().add(30, "months").format("YYYY-MM-DD");
+            }
             data.pct_dof = pctDof;
             data.pct_18 = pct18;
             data.pct_isr = isr;
@@ -187,9 +194,6 @@ router.patch('/api/updatepatentid/:id', async (req, res) => {
         const id = req.params.id;
         const updates = {};
         for(const key in req.body){
-            if(key === 'ref_no'){
-                continue;
-            }
             if(req.body[key] !== undefined && req.body[key] !== ''){
                 updates[key] = req.body[key];
             }
