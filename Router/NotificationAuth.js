@@ -204,6 +204,7 @@ router.get('/api/npenotifications', async (req, res) => {
                                 if (diffDays >= 0 && diffDays < 60) {
                                     results.push({
                                         ref_no: document.ref_no,
+                                        npe_country: npeObj.npe_country,
                                         npe_patent: npeObj.npe_patent,
                                         fieldName: field.label,
                                         fieldValue: fieldValue,
@@ -224,6 +225,7 @@ router.get('/api/npenotifications', async (req, res) => {
                                 if (diffDays >= 0 && diffDays < 60) {
                                     results.push({
                                         ref_no: document.ref_no,
+                                        npe_country: npeObj.npe_country,
                                         npe_patent: npeObj.npe_patent,
                                         fieldName: field.label,
                                         fieldValue: fieldValue,
@@ -243,6 +245,7 @@ router.get('/api/npenotifications', async (req, res) => {
                             if (diffDays >= 0 && diffDays < 60) {
                                 results.push({
                                     ref_no: document.ref_no,
+                                    npe_country: npeObj.npe_country,
                                     npe_patent: npeObj.npe_patent,
                                     fieldName: field.label,
                                     fieldValue: fieldValue,
