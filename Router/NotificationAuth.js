@@ -180,4 +180,88 @@ router.get('/api/pctnotifications', async (req, res) => {
     }
 });
 
+router.get('/api/npenotifications', async (req, res) => {
+    try{
+        const fields = [
+            { name: 'npe_oa_date', label: 'NPE Office Action Date' },
+            { name: 'npe_af_date', label: 'NPE Annuity Fee Date' },
+            { name: 'npe_if', label: 'NPE Issue Fee Date' },
+            { name: 'npe_rfe', label: 'NPE Request For Examination Date' }
+        ];
+        const currentDate = moment().tz('Asia/Kolkata');
+        let results = [];
+        const documents = await MISPatentsSchema.find();
+        for (const document of documents) {
+            const npe = document.npe;
+            for (const npeObj of npe) {
+                for (const nestedObj of npeObj.npe_oa || []) {
+                    for (const field of fields) {
+                        if (field.name === 'npe_oa_date') {
+                            const fieldValue = nestedObj[field.name];
+                            if (fieldValue) {
+                                const fieldValueDate = momentTZ(fieldValue, 'YYYY-MM-DD').tz('Asia/Kolkata');
+                                const diffDays = fieldValueDate.diff(currentDate, 'days');
+                                if (diffDays >= 0 && diffDays < 60) {
+                                    results.push({
+                                        ref_no: document.ref_no,
+                                        npe_patent: npeObj.npe_patent,
+                                        fieldName: field.label,
+                                        fieldValue: fieldValue,
+                                        daysLeft: diffDays
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+                for (const nestedObj of npeObj.npe_af || []) {
+                    for (const field of fields) {
+                        if (field.name === 'npe_af_date') {
+                            const fieldValue = nestedObj[field.name];
+                            if (fieldValue) {
+                                const fieldValueDate = momentTZ(fieldValue, 'YYYY-MM-DD').tz('Asia/Kolkata');
+                                const diffDays = fieldValueDate.diff(currentDate, 'days');
+                                if (diffDays >= 0 && diffDays < 60) {
+                                    results.push({
+                                        ref_no: document.ref_no,
+                                        npe_patent: npeObj.npe_patent,
+                                        fieldName: field.label,
+                                        fieldValue: fieldValue,
+                                        daysLeft: diffDays
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+                for (const field of fields) {
+                    if (field.name !== 'npe_oa_date' && field.name !== 'npe_af_date') {
+                        const fieldValue = npeObj[field.name];
+                        if (fieldValue) {
+                            const fieldValueDate = momentTZ(fieldValue, 'YYYY-MM-DD').tz('Asia/Kolkata');
+                            const diffDays = fieldValueDate.diff(currentDate, 'days');
+                            if (diffDays >= 0 && diffDays < 60) {
+                                results.push({
+                                    ref_no: document.ref_no,
+                                    npe_patent: npeObj.npe_patent,
+                                    fieldName: field.label,
+                                    fieldValue: fieldValue,
+                                    daysLeft: diffDays
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        results.sort((a, b) => a.daysLeft - b.daysLeft);
+        res.status(201).json(results);
+    } catch (err) {
+        res.status(500).json({
+            error: err,
+            message: "Failed To get NPE Notifications"
+        });
+    }
+});
+
 module.exports = router;
