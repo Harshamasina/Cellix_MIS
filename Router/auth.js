@@ -241,6 +241,7 @@ router.get('/api/searchpatents/:search', async (req, res) => {
                     {ref_no: {$regex: search, $options: '$i'}},
                     {'prv.prv_appno': {$regex: search, $options: '$i'}},
                     {pct_appno: {$regex: search, $options: '$i'}},
+                    {pct_pubno: {$regex: search, $options: '$i'}},
                     {'npe.npe_appno': {$regex: search, $options: '$i'}},
                     {'npe.npe_patent': {$regex: search, $options: '$i'}}
                 ]

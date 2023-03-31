@@ -108,6 +108,10 @@ const patentMISSchema = new mongoose.Schema({
     pct_isr: {
         type: String
     },
+    //PCT Publication Number
+    pct_pubno: {
+        type: String
+    },
     // PCT Publication Date
     pct_18: {
         type: String
@@ -126,5 +130,5 @@ const patentMISSchema = new mongoose.Schema({
     timestamps: true
 });
 
-const MISpatents = mongoose.model('misapplications', patentMISSchema);
+const MISpatents = mongoose.model('misnewschemapatents', patentMISSchema);
 module.exports = MISpatents;
