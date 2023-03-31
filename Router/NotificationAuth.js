@@ -205,6 +205,7 @@ router.get('/api/npenotifications', async (req, res) => {
                                     results.push({
                                         ref_no: document.ref_no,
                                         npe_country: npeObj.npe_country,
+                                        npe_appno: npeObj.npe_appno,
                                         npe_patent: npeObj.npe_patent,
                                         fieldName: field.label,
                                         fieldValue: fieldValue,
@@ -215,6 +216,7 @@ router.get('/api/npenotifications', async (req, res) => {
                         }
                     }
                 }
+
                 for (const nestedObj of npeObj.npe_af || []) {
                     for (const field of fields) {
                         if (field.name === 'npe_af_date') {
@@ -226,6 +228,7 @@ router.get('/api/npenotifications', async (req, res) => {
                                     results.push({
                                         ref_no: document.ref_no,
                                         npe_country: npeObj.npe_country,
+                                        npe_appno: npeObj.npe_appno,
                                         npe_patent: npeObj.npe_patent,
                                         fieldName: field.label,
                                         fieldValue: fieldValue,
@@ -236,6 +239,7 @@ router.get('/api/npenotifications', async (req, res) => {
                         }
                     }
                 }
+
                 for (const field of fields) {
                     if (field.name !== 'npe_oa_date' && field.name !== 'npe_af_date') {
                         const fieldValue = npeObj[field.name];
@@ -246,6 +250,7 @@ router.get('/api/npenotifications', async (req, res) => {
                                 results.push({
                                     ref_no: document.ref_no,
                                     npe_country: npeObj.npe_country,
+                                    npe_appno: npeObj.npe_appno,
                                     npe_patent: npeObj.npe_patent,
                                     fieldName: field.label,
                                     fieldValue: fieldValue,
