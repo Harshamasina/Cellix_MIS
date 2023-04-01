@@ -194,7 +194,7 @@ router.patch('/api/updatepatentid/:id', async (req, res) => {
         const id = req.params.id;
         const updates = {};
         for(const key in req.body){
-            if(req.body[key] !== undefined && req.body[key] !== ''){
+            if(req.body[key] || req.body[key] === ''){
                 updates[key] = req.body[key];
             }
         }
