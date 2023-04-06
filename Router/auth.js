@@ -338,4 +338,54 @@ router.post('/api/restoreapplication/:id', async (req, res) => {
     }
 });
 
+router.get('/api/getnpe/:desc', async (req, res) => {
+    try {
+        const { desc } = req.params;
+        const npeData = await MISPatentsSchema.find({
+            'npe.npe_grant_desc': desc
+        });
+        if (!npeData || npeData.length === 0) {
+            return res.status(404).json({
+                message: "NPE Applications Not Found"
+            });
+        };
+        const npeGroups = {};
+        npeData.forEach(patent => {
+            patent.npe.forEach(npe => {
+                if (npe.npe_grant_desc === desc) {
+                    if (!npeGroups[npe.npe_grant_desc]) {
+                        npeGroups[npe.npe_grant_desc] = [];
+                    }
+                    npeGroups[npe.npe_grant_desc].push(
+                        {
+                            ref_no: patent.ref_no,
+                            pct_dof: patent.pct_dof,
+                            npe: npe
+                        }
+                    );
+                }
+            });
+        });
+        const formattedData = Object.keys(npeGroups).map(key => {
+            return {
+              npeData: npeGroups[key]
+            };
+        });
+        const sortedData = formattedData.map((obj) => {
+            obj.npeData.sort((a, b) => {
+                if(!a.pct_dof || a.pct_dof === "") return 1;
+                if(!b.pct_dof || b.pct_dof === "") return -1;
+                return new Date(b.pct_dof) - new Date(a.pct_dof);
+            });
+            return obj;
+        });
+        res.status(201).json(sortedData);
+    } catch (err) {
+        return res.status(500).json({
+            error: err,
+            message: "Failed to get NPE Applications"
+        });
+    }
+});
+
 module.exports = router;
