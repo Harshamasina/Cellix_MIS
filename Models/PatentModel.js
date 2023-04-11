@@ -28,6 +28,9 @@ const NPEAFSchema = new mongoose.Schema({
     },
     npe_af_date: {
         type: String
+    },
+    npe_af_grace: {
+        type: String
     }
 }, {
     timestamps: true
@@ -130,5 +133,5 @@ const patentMISSchema = new mongoose.Schema({
     timestamps: true
 });
 
-const MISpatents = mongoose.model('misnewschemapatents', patentMISSchema);
+const MISpatents = mongoose.model('applicationfamilies', patentMISSchema);
 module.exports = MISpatents;

@@ -185,6 +185,7 @@ router.get('/api/npenotifications', async (req, res) => {
         const fields = [
             { name: 'npe_oa_date', label: 'NPE Office Action Date' },
             { name: 'npe_af_date', label: 'NPE Annuity Fee Date' },
+            { name: 'npe_af_grace', label: 'NPE Grace Period' },
             { name: 'npe_if', label: 'NPE Issue Fee Date' },
             { name: 'npe_rfe', label: 'NPE Request For Examination Date' }
         ];
@@ -219,7 +220,7 @@ router.get('/api/npenotifications', async (req, res) => {
 
                 for (const nestedObj of npeObj.npe_af || []) {
                     for (const field of fields) {
-                        if (field.name === 'npe_af_date') {
+                        if (field.name === 'npe_af_date' || 'npe_af_grace') {
                             const fieldValue = nestedObj[field.name];
                             if (fieldValue) {
                                 const fieldValueDate = momentTZ(fieldValue, 'YYYY-MM-DD').tz('Asia/Kolkata');
@@ -241,7 +242,7 @@ router.get('/api/npenotifications', async (req, res) => {
                 }
 
                 for (const field of fields) {
-                    if (field.name !== 'npe_oa_date' && field.name !== 'npe_af_date') {
+                    if (field.name !== 'npe_oa_date' && field.name !== 'npe_af_date' && field.name !== 'npe_af_grace') {
                         const fieldValue = npeObj[field.name];
                         if (fieldValue) {
                             const fieldValueDate = momentTZ(fieldValue, 'YYYY-MM-DD').tz('Asia/Kolkata');
