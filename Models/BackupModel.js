@@ -28,6 +28,9 @@ const NPEAFSchema = new mongoose.Schema({
     },
     npe_af_date: {
         type: String
+    },
+    npe_af_grace: {
+        type: String
     }
 }, {
     timestamps: true

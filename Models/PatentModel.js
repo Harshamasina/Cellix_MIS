@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
 
 const PRVSchema = new mongoose.Schema({
+    // PRV Application Number
     prv_appno: {
         type: String
     },
+    // PRV Date of Filing
     prv_dof: {
         type: String
     }
@@ -12,9 +14,11 @@ const PRVSchema = new mongoose.Schema({
 });
 
 const NPEOASchema = new mongoose.Schema({
+    // Office Action Description
     npe_oa_descp: {
         type: String
     },
+    // Office Action Date
     npe_oa_date: {
         type: String
     }
@@ -23,12 +27,15 @@ const NPEOASchema = new mongoose.Schema({
 });
 
 const NPEAFSchema = new mongoose.Schema({
+    // Annuity Fee Description
     npe_af_descp: {
         type: String
     },
+    // Annuity fee Date
     npe_af_date: {
         type: String
     },
+    // Annuity Fee Grace Period
     npe_af_grace: {
         type: String
     }
