@@ -126,5 +126,5 @@ const patentMISSchema = new mongoose.Schema({
     timestamps: true
 });
 
-const MISpatents = mongoose.model('misnewschemapatents', patentMISSchema);
+const MISpatents = mongoose.model('applicationfamilies', patentMISSchema);
 module.exports = MISpatents;

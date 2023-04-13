@@ -233,25 +233,24 @@ router.patch('/api/updatepatent/:ref', async (req, res) => {
 });
 
 router.get('/api/searchpatents/:search', async (req, res) => {
-    try{
+    try {
         const search = req.params.search;
-        const patentsSearchData = await MISPatentsSchema.find(
-            {
-                $or: [
-                    {ref_no: {$regex: search, $options: '$i'}},
-                    {'prv.prv_appno': {$regex: search, $options: '$i'}},
-                    {pct_appno: {$regex: search, $options: '$i'}},
-                    {pct_pubno: {$regex: search, $options: '$i'}},
-                    {'npe.npe_appno': {$regex: search, $options: '$i'}},
-                    {'npe.npe_patent': {$regex: search, $options: '$i'}}
-                ]
-            }
-        ).exec();
-        res.status(201).json(patentsSearchData);        
+        const patentsSearchData = await MISPatentsSchema.find({
+            $or: [
+                { ref_no: { $regex: new RegExp(search, 'i') } },
+                { 'prv.prv_appno': { $regex: new RegExp(search, 'i') } },
+                { pct_appno: { $regex: new RegExp(search, 'i') } },
+                { pct_pubno: { $regex: new RegExp(search, 'i') } },
+                { 'npe.npe_appno': { $regex: new RegExp(search, 'i') } },
+                { 'npe.npe_patent': { $regex: new RegExp(search, 'i') } }
+            ]
+        });
+        res.status(200).json(patentsSearchData);
     } catch (err) {
+        console.error(err.message);
         res.status(500).json({
             error: err,
-            message: "No Patent Found"
+            message: 'Error searching for patents'
         });
     }
 });
