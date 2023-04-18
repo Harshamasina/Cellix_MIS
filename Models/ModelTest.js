@@ -93,6 +93,10 @@ const patentMISSchema = new mongoose.Schema({
     },
     // PRV
     prv: [PRVSchema],
+    // PRV Notes
+    prv_notes: {
+        type: String
+    },
     // PCT Date of Filing
     pct_dof: {
         type: String
@@ -120,11 +124,15 @@ const patentMISSchema = new mongoose.Schema({
     pct_30_31: {
         type: String
     },
+    // PCT Notes
+    pct_notes: {
+        type: String
+    },
     // NPE
     npe: [NPESchema]
 }, {
     timestamps: true
 });
 
-const MISpatents = mongoose.model('applicationfamilies', patentMISSchema);
+const MISpatents = mongoose.model('misapplications', patentMISSchema);
 module.exports = MISpatents;
