@@ -96,6 +96,10 @@ const patentMISSchema = new mongoose.Schema({
     },
     // PRV
     prv: [PRVSchema],
+    // PRV Notes
+    prv_notes: {
+        type: String
+    },
     // PCT Date of Filing
     pct_dof: {
         type: String
@@ -121,6 +125,9 @@ const patentMISSchema = new mongoose.Schema({
     },
     // PCT 30/31 Date
     pct_30_31: {
+        type: String
+    },
+    pct_notes: {
         type: String
     },
     // NPE
