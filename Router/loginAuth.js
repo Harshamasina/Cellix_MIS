@@ -28,10 +28,28 @@ router.post('/api/login', async (req, res) => {
     }
 });
 
-router.get('/api/getemployee/:id', async (req, res) => {
+router.get('/api/getemployeeid/:id', async (req, res) => {
     try{
         const id = req.params.id;
         const employeeData = await EmployeeSchema.findById(id);
+        res.status(201).json(employeeData);
+    } catch (err) {
+        res.status(500).json({
+            error: err,
+            message: 'failed to get Employee Information'
+        });
+    }
+});
+
+router.get('/api/getemployee/:phn', async (req, res) => {
+    try{
+        const phn = req.params.phn;
+        const employeeData = await EmployeeSchema.find({ phone: phn });
+        if (employeeData.length === 0) {
+            return res.status(404).json({
+                message: "Employee does not exist with the provided phone number"
+            });
+        }
         res.status(201).json(employeeData);
     } catch (err) {
         res.status(500).json({
