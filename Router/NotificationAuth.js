@@ -4,7 +4,7 @@ const moment = require('moment/moment');
 const momentTZ = require('moment-timezone');
 const NotificationSchema = require('../Models/NotificationModel');
 const MISPatentsSchema = require('../Models/PatentModel');
-require('dotenv').config();
+require('dotenv').config(); 
 
 router.get('/notifications', (req , res) => {
     res.send(`Hello from the Cellix MIS Notification Services`)
