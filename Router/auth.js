@@ -357,6 +357,7 @@ router.get('/api/getnpe/:desc', async (req, res) => {
                     }
                     npeGroups[npe.npe_grant_desc].push(
                         {
+                            id: patent._id,
                             ref_no: patent.ref_no,
                             pct_dof: patent.pct_dof,
                             npe: npe

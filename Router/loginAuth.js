@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-require('dotenv').config();
 const EmployeeSchema = require('../Models/EmployeeModel');
+require('dotenv').config();
 
 router.post('/api/login', async (req, res) => {
     const confirmCode = req.header('confirmCode');
