@@ -73,7 +73,7 @@ router.get('/api/getnumbers', async (req, res) => {
 
 router.get('/api/getemployees', async (req, res) => {
     try{
-        const employees = await EmployeeSchema.find({});
+        const employees = await EmployeeSchema.find({}).sort({ createdAt: -1 });
         res.status(201).json(employees);
     } catch (err) {
         res.status(500).json({
