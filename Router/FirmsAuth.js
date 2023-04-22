@@ -35,4 +35,55 @@ router.get('/api/getfirms/:countrycode', async (req, res) => {
     }
 });
 
+router.get('/api/getcountry/:country', async (req, res) => {
+    try {
+        const { country } = req.params;
+        const countryData = await MISPatentsSchema.find({
+            'npe.npe_country': country
+        });
+        if (!countryData || countryData.length === 0) {
+            return res.status(404).json({
+                message: "NPE Applications Not Found"
+            });
+        };
+        const npeGroups = {};
+        countryData.forEach(patent => {
+            patent.npe.forEach(npe => {
+                if (npe.npe_country === country) {
+                    if (!npeGroups[npe.npe_country]) {
+                        npeGroups[npe.npe_country] = [];
+                    }
+                    npeGroups[npe.npe_country].push(
+                        {
+                            id: patent._id,
+                            ref_no: patent.ref_no,
+                            pct_dof: patent.pct_dof,
+                            npe: npe
+                        }
+                    );
+                }
+            });
+        });
+        const formattedData = Object.keys(npeGroups).map(key => {
+            return {
+              countryData: npeGroups[key]
+            };
+        });
+        const sortedData = formattedData.map((obj) => {
+            obj.countryData.sort((a, b) => {
+                if(!a.pct_dof || a.pct_dof === "") return 1;
+                if(!b.pct_dof || b.pct_dof === "") return -1;
+                return new Date(b.pct_dof) - new Date(a.pct_dof);
+            });
+            return obj;
+        });
+        res.status(201).json(sortedData);
+    } catch (err) {
+        return res.status(500).json({
+            error: err,
+            message: "Failed to get NPE Applications"
+        });
+    }
+});
+
 module.exports = router;
