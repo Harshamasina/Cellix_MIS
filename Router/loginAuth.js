@@ -59,7 +59,35 @@ router.get('/api/getemployee/:phn', async (req, res) => {
     }
 });
 
+router.get('/api/getnumbers', async (req, res) => {
+    try{
+        const numbers = await EmployeeSchema.find({}, { phone: 1, emp_id: 1, _id: 0 });
+        res.status(201).json(numbers);
+    } catch (err) {
+        res.status(500).json({
+            error: err,
+            message: 'failed to get phone numbers'
+        });
+    };
+});
+
+router.get('/api/getemployees', async (req, res) => {
+    try{
+        const employees = await EmployeeSchema.find({});
+        res.status(201).json(employees);
+    } catch (err) {
+        res.status(500).json({
+            error: err,
+            message: 'failed to get employees'
+        });
+    }
+});
+
 router.patch('/api/updateemployee/:id', async(req, res) => {
+    const confirmCode = req.header('confirmCode');
+    if(confirmCode !== process.env.ADMIN_CODE){
+        return res.status(401).json({ error: "Invalid Confirmation Code" });
+    }
     try {
         const id = req.params.id;
         const updates = {};
@@ -95,16 +123,28 @@ router.patch('/api/updateemployee/:id', async(req, res) => {
     }
 });
 
-router.get('/api/getnumbers', async (req, res) => {
+router.delete('/api/deleteemployee/:id', async (req, res) => {
+    const confirmCode = req.header('confirmCode');
+    if(confirmCode !== process.env.ADMIN_CODE){
+        return res.status(401).json({ error: "Invalid Confirmation Code" });
+    }
     try{
-        const numbers = await EmployeeSchema.find({}, { phone: 1, emp_id: 1, _id: 0 });
-        res.status(201).json(numbers);
+        const id = req.params.id;
+        const employee = await EmployeeSchema.findById(id);
+        if(!employee){
+            return res.status(404).json({error: "Employee not found"});
+        }
+        const DeleteEmployee = await EmployeeSchema.findByIdAndDelete(id);
+        return res.status(201).json({
+            DeleteEmployee,
+            message: "Successfully Deleted Notification"
+        });
     } catch (err) {
         res.status(500).json({
             error: err,
-            message: 'failed to get phone numbers'
+            message: 'failed to get employees'
         });
-    };
+    }
 });
 
 module.exports = router;
