@@ -73,34 +73,34 @@ router.get('/api/getpatents/:pageindex', async (req, res) => {
       const pageSize = 5;
       const count = await MISPatentsSchema.countDocuments();
       const sortQuery = {};
-      if (req.query.sort) {
-        const parts = req.query.sort.split(':');
-        const fieldName = parts[0];
-        const sortDirection = parts[1] === 'desc' ? -1 : 1;
-        if (fieldName === 'prv.prv_dof') {
-          sortQuery['prv.0.prv_dof'] = sortDirection;
-        } else {
-          sortQuery[fieldName] = sortDirection;
+        if (req.query.sort) {
+            const parts = req.query.sort.split(':');
+            const fieldName = parts[0];
+            const sortDirection = parts[1] === 'desc' ? -1 : 1;
+            if (fieldName === 'prv.prv_dof') {
+            sortQuery['prv.0.prv_dof'] = sortDirection;
+            } else {
+            sortQuery[fieldName] = sortDirection;
+            }
         }
-      }
       const Patents = await MISPatentsSchema
         .find()
         .skip(pageIndex * pageSize)
         .limit(pageSize)
         .sort(sortQuery);
-      const totalPages = Math.ceil(count / pageSize);
-      res.status(201).json({
-        Patents,
-        pageIndex,
-        pageSize,
-        count,
-        totalPages,
-      });
+        const totalPages = Math.ceil(count / pageSize);
+        res.status(201).json({
+            Patents,
+            pageIndex,
+            pageSize,
+            count,
+            totalPages,
+        });
     } catch(err) {
-      res.status(422).json({
-        error: err,
-        message: "Failed to get MIS Information"
-      });
+        res.status(422).json({
+            error: err,
+            message: "Failed to get MIS Information"
+        });
     }
 });
 
