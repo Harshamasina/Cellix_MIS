@@ -161,6 +161,7 @@ router.get('/api/pctnotifications', async (req, res) => {
                     const diffDays = fieldValueDate.diff(currentDate, 'days');
                     if (diffDays >= 0 && diffDays < 60) {
                         results.push({
+                            id: document._id,
                             ref_no: document.ref_no,
                             fieldName: field.label,
                             fieldValue: fieldValue,
@@ -204,6 +205,7 @@ router.get('/api/npenotifications', async (req, res) => {
                                 const diffDays = fieldValueDate.diff(currentDate, 'days');
                                 if (diffDays >= 0 && diffDays < 60) {
                                     results.push({
+                                        id: document._id,
                                         ref_no: document.ref_no,
                                         npe_country: npeObj.npe_country,
                                         npe_appno: npeObj.npe_appno,
@@ -227,6 +229,7 @@ router.get('/api/npenotifications', async (req, res) => {
                                 const diffDays = fieldValueDate.diff(currentDate, 'days');
                                 if (diffDays >= 0 && diffDays < 60) {
                                     results.push({
+                                        id: document._id,
                                         ref_no: document.ref_no,
                                         npe_country: npeObj.npe_country,
                                         npe_appno: npeObj.npe_appno,
@@ -249,6 +252,7 @@ router.get('/api/npenotifications', async (req, res) => {
                             const diffDays = fieldValueDate.diff(currentDate, 'days');
                             if (diffDays >= 0 && diffDays < 60) {
                                 results.push({
+                                    id: document._id,
                                     ref_no: document.ref_no,
                                     npe_country: npeObj.npe_country,
                                     npe_appno: npeObj.npe_appno,
