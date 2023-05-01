@@ -3,6 +3,7 @@ const router = express.Router();
 const MISPatentsSchema = require('../Models/PatentModel');
 const BackupModel = require('../Models/BackupModel');
 const moment = require('moment/moment');
+const { default: mongoose } = require('mongoose');
 require('dotenv').config();
 
 router.get('/', (req , res) => {
@@ -126,7 +127,7 @@ router.get('/api/patents/:pageindex', async (req, res) => {
             .limit(pageSize)
             .sort(sortQuery);
         const totalPages = Math.ceil(count / pageSize);
-        res.status(201).json({
+        res.status(201).json({ 
             Patents,
             pageIndex,
             pageSize,
@@ -138,8 +139,8 @@ router.get('/api/patents/:pageindex', async (req, res) => {
         error: err,
         message: "Failed to get MIS Information"
       });
-    }
-});
+    } 
+});  
 
 router.get('/api/getrefs', async (req, res) => {
     try {
@@ -175,6 +176,28 @@ router.get('/api/getpatentid/:id', async (req, res) => {
         const data = await MISPatentsSchema.findOne({ _id: id });
         if(!data){
             return res.status(404).json({message: "Patent Not Found"});
+        }
+        res.status(201).json(data);
+    } catch (err) {
+        res.status(422).json({
+            error: err,
+            message: "Failed to get MIS Information"
+        });
+    }
+});
+
+router.get('/api/getapplication/:id', async (req, res) => {
+    const id = req.params.id;
+    try{
+        const isObjectId = mongoose.Types.ObjectId.isValid(id);
+        let data;
+        if(isObjectId){
+            data = await MISPatentsSchema.findOne({ _id: id });
+        } else {
+            data = await MISPatentsSchema.findOne({ ref_no: id });
+        }
+        if(!data){
+            return res.status(404).json({message: "MIS Information Not Found"});
         }
         res.status(201).json(data);
     } catch (err) {
