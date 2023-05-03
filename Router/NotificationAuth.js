@@ -163,6 +163,7 @@ router.get('/api/pctnotifications', async (req, res) => {
                         results.push({
                             id: document._id,
                             ref_no: document.ref_no,
+                            pct_no: document.pct_appno,
                             fieldName: field.label,
                             fieldValue: fieldValue,
                             daysLeft: diffDays
