@@ -16,9 +16,6 @@ router.post('/api/cnotification', async (req, res) => {
         return res.status(401).json({ error: "Invalid Confirmation Code" });
     }
     try {
-        const currentDate = moment().startOf('day');
-        const eventDate = moment(req.body.date).startOf('day');
-        const daysLeft = eventDate.diff(currentDate, 'days');
         const ref = await MISPatentsSchema.findOne({ ref_no: req.body.ref_no });
         if(!ref){
             return res.status(400).json({
@@ -30,7 +27,6 @@ router.post('/api/cnotification', async (req, res) => {
             date: req.body.date,
             field: req.body.field,
             descp: req.body.descp,
-            daysLeft: daysLeft
         });
         const Notification = await data.save();
         res.status(201).json({
@@ -48,20 +44,27 @@ router.post('/api/cnotification', async (req, res) => {
 router.get('/api/getcnotifications', async (req, res) => {
     try {
         const data = await NotificationSchema.find();
+        const currentDate = moment();
         const sortedData = data.sort((a, b) => {
-            if (a.daysLeft < 0 && b.daysLeft >= 0) {
-                return 1;
-            } else if (a.daysLeft >= 0 && b.daysLeft < 0) {
+            const dateA = moment(a.date);
+            const dateB = moment(b.date);
+            if (dateA.isAfter(currentDate) && dateB.isAfter(currentDate)) {
+                return dateA.diff(dateB, 'days');
+            } else if (dateA.isBefore(currentDate) && dateB.isBefore(currentDate)) {
+                return dateA.diff(dateB, 'days');
+            } else if (dateA.isAfter(currentDate) && dateB.isBefore(currentDate)) {
                 return -1;
+            } else if (dateA.isBefore(currentDate) && dateB.isAfter(currentDate)) {
+                return 1;
             } else {
-                return a.daysLeft - b.daysLeft;
+                return 0;
             }
         });
         res.status(200).json(sortedData);
     } catch (err) {
         res.status(500).json({
-            error: err,
-            message: 'Failed to retrieve notifications'
+        error: err,
+        message: 'Failed to retrieve notifications',
         });
     }
 });
@@ -98,12 +101,12 @@ router.patch('/api/updatecnotification/:id', async (req, res) => {
                 updates[key] = req.body[key];
             }
         }
-        if (updates.date) {
-            const currentDate = moment().startOf('day');
-            const newDate = moment(updates.date).startOf('day');
-            const daysLeft = newDate.diff(currentDate, 'days');
-            updates.daysLeft = daysLeft;
-        }
+        // if (updates.date) {
+        //     const currentDate = moment().startOf('day');
+        //     const newDate = moment(updates.date).startOf('day');
+        //     const daysLeft = newDate.diff(currentDate, 'days');
+        //     updates.daysLeft = daysLeft;
+        // }
         const updateNotification = await NotificationSchema.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
         if(!updateNotification){
             return res.status(404).json({message: "Notification Not Found"});

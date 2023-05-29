@@ -12,9 +12,6 @@ const NotificationSchema = new mongoose.Schema({
     },
     descp: {
         type: String
-    },
-    daysLeft: {
-        type: Number
     }
 }, {
     timestamps: true
