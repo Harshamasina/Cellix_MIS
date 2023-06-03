@@ -11,6 +11,7 @@ app.use(require('./Router/PatentAuth'));
 app.use(require('./Router/loginAuth'));
 app.use(require('./Router/NotificationAuth'));
 app.use(require('./Router/FirmsAuth'));
+app.use(require('./Router/UserAuth'));
 
 app.listen(5000, () => {
     console.log(`server is running at port 5000`);
